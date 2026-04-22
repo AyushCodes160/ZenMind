@@ -1,0 +1,1429 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Zen Alpha — Find Your Calm</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400;1,500&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --cream:       oklch(97% 0.012 75);
+  --cream-2:     oklch(93% 0.018 72);
+  --cream-3:     oklch(89% 0.022 70);
+  --sage:        oklch(56% 0.09 155);
+  --sage-dark:   oklch(40% 0.08 160);
+  --sage-light:  oklch(88% 0.05 155);
+  --terra:       oklch(62% 0.10 42);
+  --terra-light: oklch(90% 0.05 42);
+  --rose:        oklch(70% 0.07 10);
+  --rose-light:  oklch(92% 0.04 10);
+  --forest:      oklch(22% 0.05 155);
+  --text-dark:   oklch(18% 0.025 60);
+  --text-mid:    oklch(45% 0.03 65);
+  --text-light:  oklch(62% 0.025 65);
+  --border:      oklch(87% 0.02 70);
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--cream);
+  color: var(--text-dark);
+  overflow-x: hidden;
+}
+
+/* ── REVEAL ANIMATIONS ── */
+.reveal {
+  opacity: 0;
+  transform: translateY(32px);
+  transition: opacity 0.7s cubic-bezier(0.25,0.46,0.45,0.94), transform 0.7s cubic-bezier(0.25,0.46,0.45,0.94);
+}
+.reveal.visible { opacity: 1; transform: translateY(0); }
+.reveal-delay-1 { transition-delay: 0.1s; }
+.reveal-delay-2 { transition-delay: 0.2s; }
+.reveal-delay-3 { transition-delay: 0.3s; }
+.reveal-delay-4 { transition-delay: 0.4s; }
+.reveal-delay-5 { transition-delay: 0.5s; }
+
+/* ── NAV ── */
+nav {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+  padding: 0 5%;
+  height: 72px;
+  display: flex; align-items: center; justify-content: space-between;
+  background: oklch(97% 0.012 75 / 0.88);
+  backdrop-filter: blur(16px);
+  border-bottom: 1px solid var(--border);
+  transition: box-shadow 0.3s;
+}
+nav.scrolled { box-shadow: 0 4px 30px oklch(20% 0.03 60 / 0.08); }
+
+.nav-logo {
+  display: flex; align-items: center; gap: 10px;
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 24px; font-weight: 500;
+  color: var(--text-dark); text-decoration: none;
+}
+.nav-logo-mark {
+  width: 36px; height: 36px; border-radius: 10px;
+  background: linear-gradient(135deg, var(--sage), var(--sage-dark));
+  display: flex; align-items: center; justify-content: center;
+}
+
+.nav-links {
+  display: flex; align-items: center; gap: 32px;
+  list-style: none;
+}
+.nav-links a {
+  font-size: 14px; font-weight: 500; color: var(--text-mid);
+  text-decoration: none; letter-spacing: 0.2px;
+  transition: color 0.2s;
+}
+.nav-links a:hover { color: var(--sage); }
+
+.nav-cta {
+  background: var(--forest); color: white;
+  border: none; border-radius: 50px;
+  padding: 11px 24px; font-family: 'DM Sans', sans-serif;
+  font-size: 14px; font-weight: 600; cursor: pointer;
+  text-decoration: none; display: inline-block;
+  transition: background 0.2s, transform 0.15s;
+  white-space: nowrap;
+}
+.nav-cta:hover { background: var(--sage-dark); transform: translateY(-1px); }
+
+/* ── HERO ── */
+#hero {
+  min-height: 100vh;
+  padding: 120px 5% 80px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 60px;
+  align-items: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.hero-bg-orb {
+  position: absolute;
+  border-radius: 50%;
+  pointer-events: none;
+}
+.orb-1 {
+  width: 600px; height: 600px;
+  background: radial-gradient(circle, oklch(88% 0.05 155 / 0.5), transparent 70%);
+  top: -100px; right: -100px;
+  animation: orbFloat 8s ease-in-out infinite;
+}
+.orb-2 {
+  width: 400px; height: 400px;
+  background: radial-gradient(circle, oklch(90% 0.05 42 / 0.4), transparent 70%);
+  bottom: -50px; left: 30%;
+  animation: orbFloat 10s ease-in-out infinite reverse;
+}
+@keyframes orbFloat {
+  0%,100% { transform: translate(0,0) scale(1); }
+  50% { transform: translate(20px,-30px) scale(1.05); }
+}
+
+.hero-content { position: relative; z-index: 1; }
+
+.hero-badge {
+  display: inline-flex; align-items: center; gap: 7px;
+  background: var(--sage-light); color: var(--sage-dark);
+  padding: 6px 14px; border-radius: 50px;
+  font-size: 12px; font-weight: 600; letter-spacing: 0.5px;
+  text-transform: uppercase; margin-bottom: 24px;
+}
+.hero-badge-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--sage); }
+
+.hero-headline {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: clamp(46px, 5vw, 72px);
+  font-weight: 400; line-height: 1.08;
+  color: var(--text-dark); margin-bottom: 22px;
+  text-wrap: pretty;
+}
+.hero-headline em { font-style: italic; color: var(--sage); }
+
+.hero-sub {
+  font-size: 17px; line-height: 1.7;
+  color: var(--text-mid); max-width: 460px;
+  margin-bottom: 38px;
+}
+
+.hero-actions { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
+
+.btn-primary {
+  background: var(--forest); color: white;
+  border: none; border-radius: 50px;
+  padding: 16px 32px; font-family: 'DM Sans', sans-serif;
+  font-size: 15px; font-weight: 600; cursor: pointer;
+  text-decoration: none; display: inline-flex; align-items: center; gap: 8px;
+  transition: all 0.2s; box-shadow: 0 6px 24px oklch(22% 0.05 155 / 0.25);
+}
+.btn-primary:hover { background: var(--sage-dark); transform: translateY(-2px); box-shadow: 0 10px 32px oklch(22% 0.05 155 / 0.3); }
+
+.btn-secondary {
+  color: var(--text-dark); background: transparent;
+  border: 1.5px solid var(--border); border-radius: 50px;
+  padding: 15px 28px; font-family: 'DM Sans', sans-serif;
+  font-size: 15px; font-weight: 500; cursor: pointer;
+  text-decoration: none; display: inline-flex; align-items: center; gap: 8px;
+  transition: all 0.2s;
+}
+.btn-secondary:hover { border-color: var(--sage); color: var(--sage); }
+
+.hero-trust {
+  margin-top: 44px;
+  display: flex; align-items: center; gap: 20px; flex-wrap: wrap;
+}
+.hero-trust-stat { display: flex; flex-direction: column; gap: 2px; }
+.hero-trust-num {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 28px; font-weight: 500; color: var(--text-dark); line-height: 1;
+}
+.hero-trust-label { font-size: 12px; color: var(--text-light); font-weight: 500; }
+.hero-trust-divider { width: 1px; height: 36px; background: var(--border); }
+
+/* Phone mockup */
+.hero-visual { position: relative; z-index: 1; display: flex; justify-content: center; }
+
+.phone-wrap {
+  position: relative;
+  width: 280px;
+  filter: drop-shadow(0 40px 80px oklch(20% 0.05 60 / 0.25));
+}
+.phone-frame {
+  width: 280px; height: 580px; border-radius: 44px;
+  background: var(--forest);
+  position: relative; overflow: hidden;
+  border: 8px solid oklch(30% 0.04 60);
+  box-shadow: inset 0 0 0 1px oklch(60% 0.03 60 / 0.2);
+}
+.phone-notch {
+  width: 100px; height: 28px; border-radius: 0 0 18px 18px;
+  background: oklch(30% 0.04 60);
+  margin: 0 auto; position: relative; z-index: 10;
+}
+.phone-screen {
+  position: absolute; inset: 0;
+  background: var(--cream);
+  overflow: hidden;
+}
+.phone-screen-inner { padding: 52px 16px 16px; height: 100%; display: flex; flex-direction: column; gap: 10px; }
+.ps-greeting { font-size: 9px; color: var(--text-light); font-weight: 500; letter-spacing: 1px; text-transform: uppercase; }
+.ps-title { font-family: 'Cormorant Garamond', serif; font-size: 20px; color: var(--text-dark); font-weight: 500; line-height: 1.2; }
+.ps-title em { font-style: italic; color: var(--sage); }
+.ps-card {
+  border-radius: 14px; padding: 14px;
+  background: linear-gradient(135deg, oklch(38% 0.08 155), oklch(28% 0.06 170));
+  position: relative; overflow: hidden;
+}
+.ps-card-orb {
+  position: absolute; right: -10px; top: -10px; width: 70px; height: 70px; border-radius: 50%;
+  background: oklch(50% 0.07 155 / 0.3);
+  animation: orbPulse 4s ease-in-out infinite;
+}
+@keyframes orbPulse { 0%,100%{transform:scale(1)} 50%{transform:scale(1.15)} }
+.ps-card-label { font-size: 7px; letter-spacing: 1.5px; text-transform: uppercase; color: oklch(80% 0.05 155); margin-bottom: 4px; }
+.ps-card-title { font-family: 'Cormorant Garamond', serif; font-size: 14px; color: white; font-weight: 400; margin-bottom: 8px; }
+.ps-btn {
+  display: inline-flex; align-items: center; gap: 4px;
+  background: white; color: oklch(38% 0.08 155);
+  border: none; border-radius: 50px; padding: 5px 10px;
+  font-size: 8px; font-weight: 700; cursor: default;
+}
+.ps-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+.ps-feat {
+  border-radius: 10px; padding: 10px 10px;
+  display: flex; flex-direction: column; gap: 4px;
+}
+.ps-feat-name { font-size: 9px; font-weight: 600; color: var(--text-dark); }
+.ps-feat-sub { font-size: 8px; color: var(--text-mid); }
+
+.phone-float-1, .phone-float-2 {
+  position: absolute;
+  background: white;
+  border-radius: 16px;
+  padding: 10px 14px;
+  box-shadow: 0 8px 32px oklch(20% 0.03 60 / 0.15);
+  display: flex; align-items: center; gap: 8px;
+  white-space: nowrap;
+}
+.phone-float-1 { right: -60px; top: 120px; animation: floatCard 5s ease-in-out infinite; }
+.phone-float-2 { left: -70px; bottom: 160px; animation: floatCard 5s ease-in-out infinite 1.5s; }
+@keyframes floatCard { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-8px)} }
+.float-icon { width: 32px; height: 32px; border-radius: 10px; display: flex; align-items: center; justify-content: center; }
+.float-text .ft-label { font-size: 10px; font-weight: 700; color: var(--text-dark); }
+.float-text .ft-sub { font-size: 9px; color: var(--text-light); }
+
+/* ── SECTION COMMON ── */
+section { padding: 100px 5%; }
+.section-label {
+  display: inline-flex; align-items: center; gap: 8px;
+  font-size: 11px; font-weight: 600; letter-spacing: 2px;
+  text-transform: uppercase; color: var(--terra);
+  margin-bottom: 16px;
+}
+.section-label::before {
+  content: ''; display: block; width: 24px; height: 2px; background: var(--terra);
+}
+.section-headline {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: clamp(36px, 4vw, 54px);
+  font-weight: 400; line-height: 1.12;
+  color: var(--text-dark); max-width: 600px; text-wrap: pretty;
+}
+.section-headline em { font-style: italic; color: var(--sage); }
+.section-sub {
+  font-size: 16px; color: var(--text-mid);
+  line-height: 1.7; max-width: 520px; margin-top: 16px;
+}
+
+/* ── FEATURES ── */
+#features { background: var(--cream); }
+.features-intro { max-width: 560px; margin-bottom: 64px; }
+
+.features-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+}
+.feat-card {
+  background: var(--cream-2);
+  border-radius: 28px;
+  padding: 36px 30px;
+  transition: transform 0.2s, box-shadow 0.2s;
+  position: relative; overflow: hidden;
+}
+.feat-card:hover { transform: translateY(-4px); box-shadow: 0 16px 48px oklch(20% 0.03 60 / 0.1); }
+.feat-card.featured {
+  background: linear-gradient(145deg, var(--forest), oklch(30% 0.06 155));
+  grid-row: span 2;
+}
+.feat-icon {
+  width: 52px; height: 52px; border-radius: 16px;
+  display: flex; align-items: center; justify-content: center;
+  margin-bottom: 20px;
+}
+.feat-card:not(.featured) .feat-icon { background: var(--cream-3); }
+.feat-card.featured .feat-icon { background: oklch(50% 0.08 155 / 0.3); }
+.feat-name {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 24px; font-weight: 500;
+  color: var(--text-dark); margin-bottom: 10px; line-height: 1.2;
+}
+.feat-card.featured .feat-name { color: white; font-size: 28px; }
+.feat-desc { font-size: 14px; color: var(--text-mid); line-height: 1.65; }
+.feat-card.featured .feat-desc { color: oklch(80% 0.04 155); font-size: 15px; }
+.feat-tag {
+  margin-top: 20px; display: inline-block;
+  padding: 5px 12px; border-radius: 50px;
+  font-size: 11px; font-weight: 600;
+  background: var(--sage-light); color: var(--sage-dark);
+}
+.feat-card.featured .feat-tag { background: oklch(56% 0.09 155 / 0.3); color: oklch(80% 0.05 155); }
+.feat-card-bento-inner { display: flex; flex-direction: column; gap: 6px; margin-top: 18px; }
+.feat-bento-chip {
+  background: var(--cream); border-radius: 10px; padding: 8px 12px;
+  font-size: 13px; color: var(--text-mid); display: flex; align-items: center; gap: 6px;
+}
+.feat-bento-chip svg { flex-shrink: 0; }
+.feat-card.featured .feat-bento-chip { background: oklch(50% 0.08 155 / 0.2); color: oklch(82% 0.04 155); }
+
+/* ── HOW IT WORKS ── */
+#how { background: var(--forest); overflow: hidden; position: relative; }
+#how .section-label { color: oklch(70% 0.06 155); }
+#how .section-label::before { background: oklch(70% 0.06 155); }
+#how .section-headline { color: white; max-width: 520px; }
+#how .section-sub { color: oklch(72% 0.04 155); }
+.how-bg-circle {
+  position: absolute; border-radius: 50%; pointer-events: none;
+  border: 1px solid oklch(60% 0.05 155 / 0.15);
+}
+.how-bg-circle:nth-child(1) { width: 600px; height: 600px; right: -200px; top: -200px; }
+.how-bg-circle:nth-child(2) { width: 900px; height: 900px; right: -400px; top: -400px; }
+
+.how-steps {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 2px;
+  margin-top: 64px;
+  position: relative;
+}
+.how-steps::after {
+  content: '';
+  position: absolute;
+  top: 36px; left: 16%; right: 16%;
+  height: 1px;
+  background: linear-gradient(to right, transparent, oklch(60% 0.05 155 / 0.3), transparent);
+}
+.how-step { padding: 0 24px; text-align: center; }
+.step-num {
+  width: 72px; height: 72px; border-radius: 50%;
+  border: 1px solid oklch(60% 0.05 155 / 0.4);
+  display: flex; align-items: center; justify-content: center;
+  margin: 0 auto 28px;
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 28px; font-weight: 300;
+  color: oklch(70% 0.06 155);
+  position: relative; z-index: 1; background: var(--forest);
+}
+.step-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 24px; font-weight: 500;
+  color: white; margin-bottom: 12px;
+}
+.step-desc { font-size: 14px; color: oklch(65% 0.04 155); line-height: 1.7; }
+
+/* ── AI THERAPIST SPOTLIGHT ── */
+#ai-therapist {
+  background: var(--cream);
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: 80px; align-items: center;
+}
+.ai-chat-mockup {
+  background: var(--cream-2);
+  border-radius: 28px;
+  padding: 28px;
+  box-shadow: 0 24px 80px oklch(20% 0.04 60 / 0.12);
+}
+.ai-chat-header {
+  display: flex; align-items: center; gap: 12px; margin-bottom: 24px;
+  padding-bottom: 18px; border-bottom: 1px solid var(--border);
+}
+.ai-avatar {
+  width: 44px; height: 44px; border-radius: 50%;
+  background: linear-gradient(135deg, var(--sage), var(--sage-dark));
+  display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+}
+.ai-name { font-family: 'Cormorant Garamond', serif; font-size: 20px; font-weight: 500; color: var(--text-dark); }
+.ai-status { font-size: 11px; color: var(--sage); font-weight: 500; display: flex; align-items: center; gap: 5px; }
+.ai-status-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--sage); }
+.chat-messages { display: flex; flex-direction: column; gap: 12px; }
+.chat-bubble {
+  max-width: 80%; padding: 12px 16px; border-radius: 18px;
+  font-size: 14px; line-height: 1.55;
+}
+.chat-bubble.ai {
+  background: white; color: var(--text-dark);
+  border-radius: 18px 18px 18px 4px;
+  align-self: flex-start;
+  box-shadow: 0 2px 12px oklch(20% 0.03 60 / 0.07);
+}
+.chat-bubble.user {
+  background: var(--sage); color: white;
+  border-radius: 18px 18px 4px 18px;
+  align-self: flex-end;
+}
+.chat-typing {
+  display: flex; gap: 4px; align-items: center;
+  padding: 12px 16px; background: white; border-radius: 18px 18px 18px 4px;
+  width: fit-content; box-shadow: 0 2px 12px oklch(20% 0.03 60 / 0.07);
+}
+.typing-dot {
+  width: 7px; height: 7px; border-radius: 50%; background: var(--text-light);
+  animation: typingBounce 1.2s ease-in-out infinite;
+}
+.typing-dot:nth-child(2) { animation-delay: 0.2s; }
+.typing-dot:nth-child(3) { animation-delay: 0.4s; }
+@keyframes typingBounce { 0%,80%,100%{transform:translateY(0)} 40%{transform:translateY(-6px)} }
+.chat-input-bar {
+  margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--border);
+  display: flex; gap: 10px; align-items: center;
+}
+.chat-input-fake {
+  flex: 1; background: var(--cream-3); border-radius: 50px;
+  padding: 10px 16px; font-size: 13px; color: var(--text-light);
+}
+.chat-send {
+  width: 38px; height: 38px; border-radius: 50%;
+  background: var(--sage); display: flex; align-items: center; justify-content: center;
+}
+
+.ai-features { display: flex; flex-direction: column; gap: 16px; margin-top: 36px; }
+.ai-feature {
+  display: flex; align-items: flex-start; gap: 14px;
+  padding: 16px 18px; border-radius: 16px;
+  background: var(--cream-2); transition: background 0.2s;
+}
+.ai-feature:hover { background: var(--cream-3); }
+.ai-feat-icon {
+  width: 40px; height: 40px; border-radius: 12px;
+  display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+}
+.ai-feat-name { font-size: 14px; font-weight: 600; color: var(--text-dark); margin-bottom: 3px; }
+.ai-feat-desc { font-size: 13px; color: var(--text-mid); line-height: 1.5; }
+
+/* ── TESTIMONIALS ── */
+#testimonials { background: var(--cream-2); }
+.testimonials-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px; margin-top: 56px;
+}
+.testi-card {
+  background: var(--cream); border-radius: 24px; padding: 28px;
+  display: flex; flex-direction: column; gap: 16px;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+.testi-card:hover { transform: translateY(-4px); box-shadow: 0 16px 48px oklch(20% 0.03 60 / 0.09); }
+.testi-card.featured { background: var(--forest); grid-column: 2; }
+.testi-stars { display: flex; gap: 3px; }
+.testi-text {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 19px; font-style: italic;
+  color: var(--text-dark); line-height: 1.55; flex: 1;
+}
+.testi-card.featured .testi-text { color: white; }
+.testi-author { display: flex; align-items: center; gap: 10px; }
+.testi-avatar {
+  width: 40px; height: 40px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 600; font-size: 15px; color: white; flex-shrink: 0;
+}
+.testi-name { font-size: 14px; font-weight: 600; color: var(--text-dark); }
+.testi-card.featured .testi-name { color: white; }
+.testi-role { font-size: 12px; color: var(--text-light); }
+.testi-card.featured .testi-role { color: oklch(65% 0.04 155); }
+
+/* ── PRICING ── */
+#pricing { background: var(--cream); }
+.pricing-toggle {
+  display: inline-flex; background: var(--cream-2); border-radius: 50px;
+  padding: 4px; margin-bottom: 56px; margin-top: 32px; gap: 2px;
+}
+.ptoggle-btn {
+  padding: 10px 24px; border-radius: 50px; border: none;
+  font-family: 'DM Sans', sans-serif; font-size: 14px; font-weight: 500;
+  cursor: pointer; transition: all 0.2s; background: transparent; color: var(--text-mid);
+}
+.ptoggle-btn.active { background: var(--forest); color: white; }
+.ptoggle-save {
+  background: var(--terra-light); color: var(--terra);
+  font-size: 10px; font-weight: 700; padding: 3px 8px; border-radius: 50px;
+  align-self: center; letter-spacing: 0.3px; text-transform: uppercase;
+}
+
+.pricing-grid {
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; align-items: start;
+}
+.pricing-card {
+  border-radius: 28px; padding: 36px 30px;
+  background: var(--cream-2);
+  position: relative; overflow: hidden;
+}
+.pricing-card.popular {
+  background: var(--forest);
+  transform: scale(1.04);
+  box-shadow: 0 24px 64px oklch(22% 0.05 155 / 0.3);
+}
+.popular-badge {
+  position: absolute; top: 20px; right: 20px;
+  background: var(--terra); color: white;
+  font-size: 10px; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase;
+  padding: 4px 10px; border-radius: 50px;
+}
+.pricing-tier {
+  font-size: 11px; font-weight: 600; letter-spacing: 2px; text-transform: uppercase;
+  color: var(--text-light); margin-bottom: 12px;
+}
+.pricing-card.popular .pricing-tier { color: oklch(65% 0.04 155); }
+.pricing-price {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 52px; font-weight: 400; line-height: 1; color: var(--text-dark); margin-bottom: 4px;
+}
+.pricing-card.popular .pricing-price { color: white; }
+.pricing-per { font-size: 13px; color: var(--text-light); margin-bottom: 24px; }
+.pricing-card.popular .pricing-per { color: oklch(65% 0.04 155); }
+.pricing-divider { height: 1px; background: var(--border); margin-bottom: 24px; }
+.pricing-card.popular .pricing-divider { background: oklch(50% 0.06 155 / 0.3); }
+.pricing-features { display: flex; flex-direction: column; gap: 12px; margin-bottom: 28px; }
+.pricing-feat {
+  display: flex; align-items: flex-start; gap: 10px;
+  font-size: 14px; color: var(--text-mid); line-height: 1.4;
+}
+.pricing-card.popular .pricing-feat { color: oklch(75% 0.04 155); }
+.pricing-check {
+  width: 18px; height: 18px; border-radius: 50%; flex-shrink: 0; margin-top: 1px;
+  display: flex; align-items: center; justify-content: center;
+}
+.pricing-btn {
+  width: 100%; padding: 14px; border-radius: 50px; border: none;
+  font-family: 'DM Sans', sans-serif; font-size: 15px; font-weight: 600;
+  cursor: pointer; transition: all 0.2s;
+}
+.pricing-btn.outline { background: transparent; border: 1.5px solid var(--border); color: var(--text-dark); }
+.pricing-btn.outline:hover { border-color: var(--sage); color: var(--sage); }
+.pricing-btn.solid { background: white; color: var(--forest); }
+.pricing-btn.solid:hover { background: var(--sage-light); }
+
+/* ── FAQ ── */
+#faq { background: var(--cream-2); }
+.faq-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 56px; }
+.faq-item {
+  background: var(--cream); border-radius: 20px; overflow: hidden;
+}
+.faq-q {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 20px 22px; cursor: pointer; gap: 16px;
+}
+.faq-q-text { font-size: 15px; font-weight: 600; color: var(--text-dark); line-height: 1.4; }
+.faq-icon {
+  width: 28px; height: 28px; border-radius: 50%;
+  background: var(--cream-2); display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0; transition: transform 0.25s, background 0.2s;
+}
+.faq-item.open .faq-icon { transform: rotate(45deg); background: var(--sage-light); }
+.faq-a {
+  max-height: 0; overflow: hidden;
+  transition: max-height 0.35s cubic-bezier(0.25,0.46,0.45,0.94), padding 0.2s;
+  font-size: 14px; color: var(--text-mid); line-height: 1.7;
+  padding: 0 22px;
+}
+.faq-item.open .faq-a { max-height: 200px; padding: 0 22px 20px; }
+
+/* ── NEWSLETTER ── */
+#newsletter {
+  background: linear-gradient(145deg, var(--forest), oklch(28% 0.06 155));
+  text-align: center; padding: 100px 5%;
+  position: relative; overflow: hidden;
+}
+#newsletter .section-label { color: oklch(70% 0.06 155); justify-content: center; }
+#newsletter .section-label::before { background: oklch(70% 0.06 155); }
+#newsletter .section-headline { color: white; margin: 0 auto; text-align: center; }
+.newsletter-sub { font-size: 16px; color: oklch(72% 0.04 155); line-height: 1.7; margin: 16px auto 0; max-width: 460px; text-align: center; }
+.newsletter-form {
+  display: flex; gap: 10px; max-width: 480px; margin: 40px auto 0;
+  background: oklch(50% 0.07 155 / 0.2);
+  border: 1px solid oklch(60% 0.05 155 / 0.3);
+  border-radius: 50px; padding: 6px 6px 6px 22px;
+}
+.newsletter-input {
+  flex: 1; background: transparent; border: none; outline: none;
+  font-family: 'DM Sans', sans-serif; font-size: 15px;
+  color: white;
+}
+.newsletter-input::placeholder { color: oklch(65% 0.04 155); }
+.newsletter-btn {
+  background: white; color: var(--forest);
+  border: none; border-radius: 50px; padding: 12px 24px;
+  font-family: 'DM Sans', sans-serif; font-size: 14px; font-weight: 700;
+  cursor: pointer; white-space: nowrap; transition: background 0.2s;
+  flex-shrink: 0;
+}
+.newsletter-btn:hover { background: var(--sage-light); }
+.newsletter-note { font-size: 12px; color: oklch(55% 0.04 155); margin-top: 14px; }
+.nl-bg-orb {
+  position: absolute; border-radius: 50%; pointer-events: none;
+  background: oklch(50% 0.07 155 / 0.15);
+}
+.nl-bg-orb:nth-child(1) { width: 400px; height: 400px; left: -150px; top: -150px; }
+.nl-bg-orb:nth-child(2) { width: 300px; height: 300px; right: -100px; bottom: -100px; }
+
+/* ── ABOUT ── */
+#about { background: var(--cream); }
+.about-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 80px; align-items: center; margin-top: 0; }
+.about-visual {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 14px;
+}
+.about-stat-card {
+  background: var(--cream-2); border-radius: 22px; padding: 24px;
+  display: flex; flex-direction: column; gap: 6px;
+}
+.about-stat-card:first-child { background: var(--sage-light); }
+.about-stat-card:last-child { grid-column: span 2; background: var(--terra-light); flex-direction: row; align-items: center; }
+.about-stat-num {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 40px; font-weight: 500; line-height: 1; color: var(--text-dark);
+}
+.about-stat-label { font-size: 13px; color: var(--text-mid); font-weight: 500; }
+.about-text .section-headline { max-width: none; }
+.about-values { display: flex; flex-direction: column; gap: 14px; margin-top: 30px; }
+.about-value {
+  display: flex; align-items: flex-start; gap: 12px;
+  padding: 14px 16px; background: var(--cream-2); border-radius: 14px;
+}
+.about-val-dot { width: 8px; height: 8px; border-radius: 50%; margin-top: 6px; flex-shrink: 0; }
+.about-val-text { font-size: 14px; color: var(--text-mid); line-height: 1.6; }
+.about-val-text strong { color: var(--text-dark); font-weight: 600; }
+
+/* ── FOOTER ── */
+footer {
+  background: oklch(14% 0.02 60);
+  padding: 70px 5% 36px;
+  color: oklch(55% 0.02 60);
+}
+.footer-top {
+  display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 48px;
+  padding-bottom: 56px; border-bottom: 1px solid oklch(22% 0.02 60);
+  margin-bottom: 36px;
+}
+.footer-brand { display: flex; flex-direction: column; gap: 16px; }
+.footer-logo {
+  display: flex; align-items: center; gap: 10px;
+  font-family: 'Cormorant Garamond', serif; font-size: 22px; font-weight: 500;
+  color: white; text-decoration: none;
+}
+.footer-tagline { font-size: 14px; line-height: 1.65; max-width: 260px; }
+.footer-socials { display: flex; gap: 10px; }
+.social-btn {
+  width: 36px; height: 36px; border-radius: 10px;
+  background: oklch(22% 0.02 60);
+  display: flex; align-items: center; justify-content: center;
+  transition: background 0.2s; cursor: pointer;
+}
+.social-btn:hover { background: var(--sage-dark); }
+.footer-col-title { font-size: 12px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: oklch(75% 0.02 60); margin-bottom: 16px; }
+.footer-links { display: flex; flex-direction: column; gap: 10px; }
+.footer-links a { font-size: 14px; color: oklch(50% 0.02 60); text-decoration: none; transition: color 0.2s; }
+.footer-links a:hover { color: oklch(80% 0.04 155); }
+.footer-bottom { display: flex; justify-content: space-between; align-items: center; gap: 16px; flex-wrap: wrap; }
+.footer-copy { font-size: 13px; }
+.footer-legal { display: flex; gap: 20px; }
+.footer-legal a { font-size: 13px; color: oklch(45% 0.02 60); text-decoration: none; transition: color 0.2s; }
+.footer-legal a:hover { color: oklch(70% 0.03 155); }
+
+/* ── HAMBURGER MENU ── */
+.nav-hamburger {
+  display: none;
+  flex-direction: column; gap: 5px;
+  background: none; border: none; cursor: pointer;
+  padding: 8px; border-radius: 10px;
+  transition: background 0.2s;
+}
+.nav-hamburger:hover { background: var(--cream-2); }
+.nav-hamburger span {
+  display: block; width: 24px; height: 2px;
+  background: var(--text-dark); border-radius: 2px;
+  transition: transform 0.3s, opacity 0.3s;
+}
+.nav-hamburger.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+.nav-hamburger.open span:nth-child(2) { opacity: 0; }
+.nav-hamburger.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
+.mobile-menu {
+  display: none;
+  position: fixed; top: 72px; left: 0; right: 0; z-index: 99;
+  background: oklch(97% 0.012 75 / 0.97);
+  backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--border);
+  padding: 20px 5% 28px;
+  flex-direction: column; gap: 4px;
+  box-shadow: 0 12px 40px oklch(20% 0.03 60 / 0.1);
+}
+.mobile-menu.open { display: flex; }
+.mobile-menu a {
+  font-size: 18px; font-weight: 500; color: var(--text-dark);
+  text-decoration: none; padding: 14px 16px; border-radius: 14px;
+  transition: background 0.2s, color 0.2s;
+}
+.mobile-menu a:hover { background: var(--cream-2); color: var(--sage); }
+.mobile-menu .mobile-cta {
+  background: var(--forest); color: white !important;
+  text-align: center; margin-top: 10px; font-weight: 700;
+  font-size: 17px !important;
+}
+.mobile-menu .mobile-cta:hover { background: var(--sage-dark) !important; }
+
+/* ── RESPONSIVE ── */
+@media (max-width: 900px) {
+  #hero { grid-template-columns: 1fr; text-align: center; padding: 100px 5% 60px; }
+  .hero-content { display: flex; flex-direction: column; align-items: center; }
+  .hero-sub { text-align: center; font-size: 18px; }
+  .hero-visual { display: none; }
+  .features-grid { grid-template-columns: 1fr; }
+  .feat-card.featured { grid-row: auto; }
+  .how-steps { grid-template-columns: 1fr; gap: 40px; }
+  .how-steps::after { display: none; }
+  #ai-therapist { grid-template-columns: 1fr; }
+  .testimonials-grid { grid-template-columns: 1fr; }
+  .testi-card.featured { grid-column: auto; }
+  .pricing-grid { grid-template-columns: 1fr; }
+  .pricing-card.popular { transform: none; }
+  .faq-grid { grid-template-columns: 1fr; }
+  .about-grid { grid-template-columns: 1fr; }
+  .footer-top { grid-template-columns: 1fr 1fr; }
+  nav .nav-links { display: none; }
+  nav .nav-cta { display: none; }
+  .nav-hamburger { display: flex; }
+  .hero-headline { font-size: clamp(38px, 10vw, 60px); }
+  .hero-trust { justify-content: center; }
+  .btn-primary, .btn-secondary { font-size: 17px; padding: 18px 32px; }
+  section { padding: 70px 5%; }
+  .step-desc, .feat-desc, .ai-feat-desc, .testi-text { font-size: 16px; }
+  .faq-q-text { font-size: 17px; }
+}
+
+@media (max-width: 500px) {
+  .footer-top { grid-template-columns: 1fr; }
+  .hero-actions { flex-direction: column; width: 100%; }
+  .hero-actions a { text-align: center; justify-content: center; width: 100%; }
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav id="navbar">
+  <a href="#hero" class="nav-logo">
+    <div class="nav-logo-mark">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="1.6">
+        <circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4"/><circle cx="12" cy="12" r="1.5" fill="white" stroke="none"/>
+      </svg>
+    </div>
+    Zen Alpha
+  </a>
+  <ul class="nav-links">
+    <li><a href="#features">Features</a></li>
+    <li><a href="#how">How It Works</a></li>
+    <li><a href="#ai-therapist">AI Therapist</a></li>
+    <li><a href="#testimonials">Stories</a></li>
+    <li><a href="#pricing">Pricing</a></li>
+    <li><a href="#about">About</a></li>
+  </ul>
+  <a href="Zen Alpha.html" class="nav-cta" target="_blank">Try Zen AI →</a>
+  <button class="nav-hamburger" id="hamburger" aria-label="Open menu" onclick="toggleMenu()">
+    <span></span><span></span><span></span>
+  </button>
+</nav>
+
+<!-- MOBILE MENU -->
+<div class="mobile-menu" id="mobile-menu">
+  <a href="#features" onclick="closeMenu()">Features</a>
+  <a href="#how" onclick="closeMenu()">How It Works</a>
+  <a href="#ai-therapist" onclick="closeMenu()">AI Therapist</a>
+  <a href="#testimonials" onclick="closeMenu()">Stories</a>
+  <a href="#pricing" onclick="closeMenu()">Pricing</a>
+  <a href="#about" onclick="closeMenu()">About</a>
+  <a href="Zen Alpha.html" target="_blank" class="mobile-cta" onclick="closeMenu()">Try Zen AI — Free →</a>
+</div>
+
+<!-- HERO -->
+<section id="hero" style="display:block; padding: 140px 5% 100px; text-align:center; position:relative; overflow:hidden; min-height:auto;">
+  <div class="hero-bg-orb orb-1"></div>
+  <div class="hero-bg-orb orb-2"></div>
+
+  <div style="position:relative; z-index:1; max-width: 780px; margin: 0 auto;">
+    <div class="hero-badge reveal" style="justify-content:center;"><span class="hero-badge-dot"></span> Mental Wellness Reimagined</div>
+    <h1 class="hero-headline reveal reveal-delay-1" style="font-size: clamp(48px, 7vw, 84px); max-width:none; margin-bottom: 28px;">
+      Your mind deserves<br><em>gentle care</em>
+    </h1>
+    <p class="hero-sub reveal reveal-delay-2" style="max-width: 560px; margin: 0 auto 44px; font-size: 19px; text-align:center;">
+      AI wellness companion, guided meditations, a caring community, and daily rituals — all in one calm space.
+    </p>
+    <div class="hero-actions reveal reveal-delay-3" style="justify-content:center;">
+      <a href="Zen Alpha.html" target="_blank" class="btn-primary" style="font-size:17px; padding:20px 40px;">
+        Try Zen AI — Free
+      </a>
+      <a href="#how" class="btn-secondary" style="font-size:17px; padding:19px 36px;">See How It Works</a>
+    </div>
+    <div class="hero-trust reveal reveal-delay-4" style="justify-content:center; margin-top: 56px; gap:32px;">
+      <div class="hero-trust-stat">
+        <div class="hero-trust-num" style="font-size:34px;">50K+</div>
+        <div class="hero-trust-label" style="font-size:14px;">Active users</div>
+      </div>
+      <div class="hero-trust-divider"></div>
+      <div class="hero-trust-stat">
+        <div class="hero-trust-num" style="font-size:34px;">4.9★</div>
+        <div class="hero-trust-label" style="font-size:14px;">App rating</div>
+      </div>
+      <div class="hero-trust-divider"></div>
+      <div class="hero-trust-stat">
+        <div class="hero-trust-num" style="font-size:34px;">24/7</div>
+        <div class="hero-trust-label" style="font-size:14px;">Always available</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FEATURES -->
+<section id="features">
+  <div class="features-intro">
+    <div class="section-label reveal">Everything You Need</div>
+    <h2 class="section-headline reveal reveal-delay-1">Five practices, one <em>peaceful</em> home</h2>
+    <p class="section-sub reveal reveal-delay-2">Built for beginners and seasoned meditators alike. No overwhelm — just the tools you need to feel better, gently.</p>
+  </div>
+  <div class="features-grid">
+    <div class="feat-card featured reveal">
+      <div class="feat-icon">
+        <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="oklch(80% 0.05 155)" strokeWidth="1.6"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4"/><circle cx="12" cy="12" r="1.5" fill="oklch(80% 0.05 155)" stroke="none"/></svg>
+      </div>
+      <div class="feat-name">Talk to Zen AI</div>
+      <div class="feat-desc">Your always-available AI wellness companion. Share how you're feeling and receive warm, thoughtful responses — no judgment, no waiting room.</div>
+      <div class="feat-card-bento-inner">
+        <div class="feat-bento-chip">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+          Live AI conversation
+        </div>
+        <div class="feat-bento-chip">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-3.314 3.582-6 8-6s8 2.686 8 6"/></svg>
+          Mood check-in
+        </div>
+        <div class="feat-bento-chip">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          Safe & confidential
+        </div>
+      </div>
+      <div class="feat-tag">Primary Feature</div>
+    </div>
+
+    <div class="feat-card reveal reveal-delay-1">
+      <div class="feat-icon">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--sage)" strokeWidth="1.8"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4"/><circle cx="12" cy="12" r="1.5" fill="var(--sage)" stroke="none"/></svg>
+      </div>
+      <div class="feat-name">Guided Meditations</div>
+      <div class="feat-desc">Breathing exercises, body scans, sleep prep, and more — all designed for beginners.</div>
+      <div class="feat-tag">Breathwork & Mindfulness</div>
+    </div>
+
+    <div class="feat-card reveal reveal-delay-2">
+      <div class="feat-icon">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--terra)" strokeWidth="1.8"><path d="M17 8C8 10 5.9 16.17 3.82 19.39c1.54.8 3.29 1.07 5 .78C12.7 19.47 17 14.95 17 8z"/><path d="M3 19l4-4" stroke-linecap="round"/></svg>
+      </div>
+      <div class="feat-name">Community</div>
+      <div class="feat-desc">Share experiences, find support, and grow together with people who truly understand.</div>
+      <div class="feat-tag">Peer Support</div>
+    </div>
+
+    <div class="feat-card reveal reveal-delay-1">
+      <div class="feat-icon">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--rose)" strokeWidth="1.8"><rect x="2" y="5" width="15" height="14" rx="3"/><path d="M17 9l5-3v12l-5-3V9z"/></svg>
+      </div>
+      <div class="feat-name">Calm Videos</div>
+      <div class="feat-desc">Soothing short videos for relaxation, focus, and sleep — beautiful visuals with gentle audio.</div>
+      <div class="feat-tag">Relaxation</div>
+    </div>
+
+    <div class="feat-card reveal reveal-delay-2">
+      <div class="feat-icon">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--text-mid)" strokeWidth="1.8"><path d="M3 21c3 0 7-1 7-8V5c0-1.25-.757-2.017-2-2H4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2 1 0 1 0 1 1v1c0 1-1 2-2 2s-1 .008-1 1.031V20c0 1 0 1 1 1z"/><path d="M15 21c3 0 7-1 7-8V5c0-1.25-.757-2.017-2-2h-4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2h.75c0 2.25.25 4-2.75 4v3c0 1 0 1 1 1z"/></svg>
+      </div>
+      <div class="feat-name">Daily Quotes</div>
+      <div class="feat-desc">A curated moment of inspiration each day, paired with calm visuals and your journal.</div>
+      <div class="feat-tag">Daily Ritual</div>
+    </div>
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section id="how">
+  <div class="how-bg-circle"></div>
+  <div class="how-bg-circle"></div>
+  <div class="section-label reveal">Simple by Design</div>
+  <h2 class="section-headline reveal reveal-delay-1">Three steps to a <em>calmer</em> you</h2>
+  <p class="section-sub reveal reveal-delay-2">No complicated onboarding. No overwhelming choices. Just a gentle path toward feeling better.</p>
+  <div class="how-steps">
+    <div class="how-step reveal reveal-delay-1">
+      <div class="step-num">01</div>
+      <div class="step-title">Check In With Yourself</div>
+      <div class="step-desc">Start each day with a simple mood check-in. Tell Zen AI how you're feeling — even "I don't know" is a perfectly valid answer.</div>
+    </div>
+    <div class="how-step reveal reveal-delay-2">
+      <div class="step-num">02</div>
+      <div class="step-title">Follow Your Path</div>
+      <div class="step-desc">Zen gently guides you — a 5-minute breathing session, a conversation, a quote, a video. Small acts, meaningful change.</div>
+    </div>
+    <div class="how-step reveal reveal-delay-3">
+      <div class="step-num">03</div>
+      <div class="step-title">Grow, Gently</div>
+      <div class="step-desc">Track your journey with a private journal, connect with the community, and watch small daily rituals transform your inner life.</div>
+    </div>
+  </div>
+</section>
+
+<!-- AI THERAPIST SPOTLIGHT -->
+<section id="ai-therapist">
+  <div class="ai-chat-mockup reveal">
+    <div class="ai-chat-header">
+      <div class="ai-avatar">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="1.6"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4"/><circle cx="12" cy="12" r="1.5" fill="white" stroke="none"/></svg>
+      </div>
+      <div>
+        <div class="ai-name">Zen</div>
+        <div class="ai-status"><span class="ai-status-dot"></span> AI Wellness Companion · Always here</div>
+      </div>
+    </div>
+    <div class="chat-messages">
+      <div class="chat-bubble ai">Hello. I'm Zen — your gentle AI wellness companion. How are you feeling today?</div>
+      <div class="chat-bubble user">I've been feeling really anxious lately and can't sleep well.</div>
+      <div class="chat-bubble ai">I hear you — anxiety and restless nights can feel exhausting. Thank you for sharing that. You're not alone in this. Would you like to try a short breathing exercise together, or would it help to just talk through what's been on your mind?</div>
+      <div class="chat-typing">
+        <div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div>
+      </div>
+    </div>
+    <div class="chat-input-bar">
+      <div class="chat-input-fake">Share what's on your mind…</div>
+      <div class="chat-send">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round"><path d="M22 2L11 13M22 2L15 22l-4-9-9-4 20-7z"/></svg>
+      </div>
+    </div>
+  </div>
+
+  <div>
+    <div class="section-label reveal">Meet Zen</div>
+    <h2 class="section-headline reveal reveal-delay-1">A companion who <em>truly listens</em>, any time of day</h2>
+    <p class="section-sub reveal reveal-delay-2">Zen isn't a chatbot — it's a thoughtful AI built with empathy at its core. Available at 3am when anxiety peaks, or during a quiet lunch break. No appointments, no waitlists.</p>
+    <div class="ai-features">
+      <div class="ai-feature reveal reveal-delay-2">
+        <div class="ai-feat-icon" style="background:var(--sage-light)">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--sage)" strokeWidth="1.8"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l8.84 8.84 8.84-8.84a5.5 5.5 0 000-7.78z"/></svg>
+        </div>
+        <div>
+          <div class="ai-feat-name">Empathetic by design</div>
+          <div class="ai-feat-desc">Validates your feelings before suggesting anything. Listens first, always.</div>
+        </div>
+      </div>
+      <div class="ai-feature reveal reveal-delay-3">
+        <div class="ai-feat-icon" style="background:var(--terra-light)">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--terra)" strokeWidth="1.8"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        </div>
+        <div>
+          <div class="ai-feat-name">Safe & private</div>
+          <div class="ai-feat-desc">Your conversations are confidential. Share freely, without worry.</div>
+        </div>
+      </div>
+      <div class="ai-feature reveal reveal-delay-4">
+        <div class="ai-feat-icon" style="background:var(--rose-light)">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--rose)" strokeWidth="1.8"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3" strokeLinecap="round"/></svg>
+        </div>
+        <div>
+          <div class="ai-feat-name">Available 24 / 7</div>
+          <div class="ai-feat-desc">Whether it's midnight anxiety or a midday slump, Zen is always there.</div>
+        </div>
+      </div>
+    </div>
+    <a href="Zen Alpha.html" target="_blank" class="btn-primary reveal reveal-delay-4" style="margin-top:28px;display:inline-flex">
+      Try Zen AI Now →
+    </a>
+  </div>
+</section>
+
+<!-- TESTIMONIALS -->
+<section id="testimonials">
+  <div style="max-width:520px">
+    <div class="section-label reveal">Real Stories</div>
+    <h2 class="section-headline reveal reveal-delay-1">Words from people who <em>found their calm</em></h2>
+  </div>
+  <div class="testimonials-grid">
+    <div class="testi-card reveal reveal-delay-1">
+      <div class="testi-stars">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="var(--terra)"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="var(--terra)"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="var(--terra)"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="var(--terra)"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="var(--terra)"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+      </div>
+      <div class="testi-text">"I was skeptical about an AI wellness app, but Zen genuinely feels like it understands me. The morning breathing ritual changed how I start every day."</div>
+      <div class="testi-author">
+        <div class="testi-avatar" style="background:var(--sage)">M</div>
+        <div>
+          <div class="testi-name">Maya R.</div>
+          <div class="testi-role">Using Zen Alpha for 3 months</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="testi-card featured reveal reveal-delay-2">
+      <div class="testi-stars">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="var(--terra)"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="var(--terra)"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="var(--terra)"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="var(--terra)"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="var(--terra)"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+      </div>
+      <div class="testi-text">"After losing my job, my anxiety was through the roof. The community here helped me feel less alone, and the AI companion helped me process everything at 2am when I couldn't sleep. It was exactly what I needed."</div>
+      <div class="testi-author">
+        <div class="testi-avatar" style="background:var(--terra)">T</div>
+        <div>
+          <div class="testi-name">Tomás B.</div>
+          <div class="testi-role">Community member · 6 months</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="testi-card reveal reveal-delay-3">
+      <div class="testi-stars">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="var(--terra)"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="var(--terra)"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="var(--terra)"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="var(--terra)"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="var(--terra)"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+      </div>
+      <div class="testi-text">"As someone new to meditation, this felt approachable rather than intimidating. The daily quotes always land at the right moment."</div>
+      <div class="testi-author">
+        <div class="testi-avatar" style="background:var(--rose)">N</div>
+        <div>
+          <div class="testi-name">Nadia K.</div>
+          <div class="testi-role">Beginner meditator · 2 months</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PRICING -->
+<section id="pricing">
+  <div class="section-label reveal">Simple Pricing</div>
+  <h2 class="section-headline reveal reveal-delay-1">Start free. Grow at <em>your own pace</em>.</h2>
+  <div style="display:flex;align-items:center;gap:14px;margin-top:28px" class="reveal reveal-delay-2">
+    <div class="pricing-toggle">
+      <button class="ptoggle-btn active" id="monthly-btn" onclick="setMonthly()">Monthly</button>
+      <button class="ptoggle-btn" id="annual-btn" onclick="setAnnual()">Annual</button>
+    </div>
+    <div class="ptoggle-save" id="annual-save" style="display:none">Save 40%</div>
+  </div>
+
+  <div class="pricing-grid">
+    <div class="pricing-card reveal reveal-delay-1">
+      <div class="pricing-tier">Free</div>
+      <div class="pricing-price">$0</div>
+      <div class="pricing-per">forever free</div>
+      <div class="pricing-divider"></div>
+      <div class="pricing-features">
+        <div class="pricing-feat">
+          <div class="pricing-check" style="background:var(--sage-light)"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="var(--sage)" strokeWidth="3"><path d="M20 6L9 17l-5-5" strokeLinecap="round"/></svg></div>
+          5 AI conversations / month
+        </div>
+        <div class="pricing-feat">
+          <div class="pricing-check" style="background:var(--sage-light)"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="var(--sage)" strokeWidth="3"><path d="M20 6L9 17l-5-5" strokeLinecap="round"/></svg></div>
+          3 guided meditations
+        </div>
+        <div class="pricing-feat">
+          <div class="pricing-check" style="background:var(--sage-light)"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="var(--sage)" strokeWidth="3"><path d="M20 6L9 17l-5-5" strokeLinecap="round"/></svg></div>
+          Community access
+        </div>
+        <div class="pricing-feat">
+          <div class="pricing-check" style="background:var(--sage-light)"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="var(--sage)" strokeWidth="3"><path d="M20 6L9 17l-5-5" strokeLinecap="round"/></svg></div>
+          Daily quotes
+        </div>
+      </div>
+      <button class="pricing-btn outline">Get Started Free</button>
+    </div>
+
+    <div class="pricing-card popular reveal reveal-delay-2">
+      <div class="popular-badge">Most Popular</div>
+      <div class="pricing-tier">Calm</div>
+      <div class="pricing-price" id="calm-price">$9</div>
+      <div class="pricing-per" id="calm-per">per month</div>
+      <div class="pricing-divider"></div>
+      <div class="pricing-features">
+        <div class="pricing-feat">
+          <div class="pricing-check" style="background:oklch(56% 0.09 155 / 0.3)"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="oklch(80% 0.05 155)" strokeWidth="3"><path d="M20 6L9 17l-5-5" strokeLinecap="round"/></svg></div>
+          Unlimited AI conversations
+        </div>
+        <div class="pricing-feat">
+          <div class="pricing-check" style="background:oklch(56% 0.09 155 / 0.3)"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="oklch(80% 0.05 155)" strokeWidth="3"><path d="M20 6L9 17l-5-5" strokeLinecap="round"/></svg></div>
+          Full meditation library
+        </div>
+        <div class="pricing-feat">
+          <div class="pricing-check" style="background:oklch(56% 0.09 155 / 0.3)"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="oklch(80% 0.05 155)" strokeWidth="3"><path d="M20 6L9 17l-5-5" strokeLinecap="round"/></svg></div>
+          All calm videos
+        </div>
+        <div class="pricing-feat">
+          <div class="pricing-check" style="background:oklch(56% 0.09 155 / 0.3)"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="oklch(80% 0.05 155)" strokeWidth="3"><path d="M20 6L9 17l-5-5" strokeLinecap="round"/></svg></div>
+          Private journal
+        </div>
+        <div class="pricing-feat">
+          <div class="pricing-check" style="background:oklch(56% 0.09 155 / 0.3)"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="oklch(80% 0.05 155)" strokeWidth="3"><path d="M20 6L9 17l-5-5" strokeLinecap="round"/></svg></div>
+          Progress insights
+        </div>
+      </div>
+      <button class="pricing-btn solid">Start 7-Day Free Trial</button>
+    </div>
+
+    <div class="pricing-card reveal reveal-delay-3">
+      <div class="pricing-tier">Serenity</div>
+      <div class="pricing-price" id="ser-price">$19</div>
+      <div class="pricing-per" id="ser-per">per month</div>
+      <div class="pricing-divider"></div>
+      <div class="pricing-features">
+        <div class="pricing-feat">
+          <div class="pricing-check" style="background:var(--sage-light)"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="var(--sage)" strokeWidth="3"><path d="M20 6L9 17l-5-5" strokeLinecap="round"/></svg></div>
+          Everything in Calm
+        </div>
+        <div class="pricing-feat">
+          <div class="pricing-check" style="background:var(--sage-light)"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="var(--sage)" strokeWidth="3"><path d="M20 6L9 17l-5-5" strokeLinecap="round"/></svg></div>
+          Priority AI responses
+        </div>
+        <div class="pricing-feat">
+          <div class="pricing-check" style="background:var(--sage-light)"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="var(--sage)" strokeWidth="3"><path d="M20 6L9 17l-5-5" strokeLinecap="round"/></svg></div>
+          Personalized programs
+        </div>
+        <div class="pricing-feat">
+          <div class="pricing-check" style="background:var(--sage-light)"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="var(--sage)" strokeWidth="3"><path d="M20 6L9 17l-5-5" strokeLinecap="round"/></svg></div>
+          Family sharing (up to 4)
+        </div>
+      </div>
+      <button class="pricing-btn outline">Start Free Trial</button>
+    </div>
+  </div>
+</section>
+
+<!-- FAQ -->
+<section id="faq">
+  <div style="max-width:520px">
+    <div class="section-label reveal">Questions</div>
+    <h2 class="section-headline reveal reveal-delay-1">Everything you might <em>wonder about</em></h2>
+  </div>
+  <div class="faq-grid">
+    <div class="faq-item reveal reveal-delay-1">
+      <div class="faq-q" onclick="toggleFaq(this)">
+        <div class="faq-q-text">Is Zen AI a replacement for real therapy?</div>
+        <div class="faq-icon">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--text-mid)" strokeWidth="2.5" strokeLinecap="round"><path d="M12 5v14M5 12h14"/></svg>
+        </div>
+      </div>
+      <div class="faq-a">No — Zen AI is a compassionate wellness companion, not a clinical therapist. It's designed for daily emotional support, coping strategies, and mindfulness. For serious mental health concerns, we always recommend working with a licensed professional.</div>
+    </div>
+
+    <div class="faq-item reveal reveal-delay-2">
+      <div class="faq-q" onclick="toggleFaq(this)">
+        <div class="faq-q-text">Is my data and conversation private?</div>
+        <div class="faq-icon">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--text-mid)" strokeWidth="2.5" strokeLinecap="round"><path d="M12 5v14M5 12h14"/></svg>
+        </div>
+      </div>
+      <div class="faq-a">Absolutely. Your conversations with Zen AI and your journal entries are completely private. We use end-to-end encryption and never share your data with third parties. Your wellbeing is ours to protect.</div>
+    </div>
+
+    <div class="faq-item reveal reveal-delay-1">
+      <div class="faq-q" onclick="toggleFaq(this)">
+        <div class="faq-q-text">I've never meditated before — is this for me?</div>
+        <div class="faq-icon">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--text-mid)" strokeWidth="2.5" strokeLinecap="round"><path d="M12 5v14M5 12h14"/></svg>
+        </div>
+      </div>
+      <div class="faq-a">Yes, completely! Zen Alpha is built with beginners in mind. Every session starts simple — even just 3 minutes of breathing. There's no right or wrong way to begin; we meet you exactly where you are.</div>
+    </div>
+
+    <div class="faq-item reveal reveal-delay-2">
+      <div class="faq-q" onclick="toggleFaq(this)">
+        <div class="faq-q-text">Can I cancel my subscription anytime?</div>
+        <div class="faq-icon">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--text-mid)" strokeWidth="2.5" strokeLinecap="round"><path d="M12 5v14M5 12h14"/></svg>
+        </div>
+      </div>
+      <div class="faq-a">Yes, cancel any time with no questions asked. You keep access until the end of your billing period. Your journal entries and progress are yours to export forever.</div>
+    </div>
+
+    <div class="faq-item reveal reveal-delay-3">
+      <div class="faq-q" onclick="toggleFaq(this)">
+        <div class="faq-q-text">How is Zen AI different from other chatbots?</div>
+        <div class="faq-icon">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--text-mid)" strokeWidth="2.5" strokeLinecap="round"><path d="M12 5v14M5 12h14"/></svg>
+        </div>
+      </div>
+      <div class="faq-a">Zen is built specifically for emotional wellness. It always validates feelings before offering suggestions, uses evidence-based conversational techniques, and understands the context of your journey over time — it's a companion, not just a Q&A bot.</div>
+    </div>
+
+    <div class="faq-item reveal reveal-delay-3">
+      <div class="faq-q" onclick="toggleFaq(this)">
+        <div class="faq-q-text">Is the community safe and moderated?</div>
+        <div class="faq-icon">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--text-mid)" strokeWidth="2.5" strokeLinecap="round"><path d="M12 5v14M5 12h14"/></svg>
+        </div>
+      </div>
+      <div class="faq-a">Yes. Our community is actively moderated by trained wellness advocates. We have clear guidelines against judgment or negativity, and every post is reviewed. This is a space built entirely on kindness.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ABOUT -->
+<section id="about" style="padding-top:100px;padding-bottom:100px">
+  <div class="about-grid">
+    <div class="about-visual reveal">
+      <div class="about-stat-card">
+        <div class="about-stat-num">50K+</div>
+        <div class="about-stat-label">People finding calm</div>
+      </div>
+      <div class="about-stat-card" style="background:var(--terra-light)">
+        <div class="about-stat-num">4.9</div>
+        <div class="about-stat-label">Average app rating</div>
+      </div>
+      <div class="about-stat-card" style="background:var(--rose-light)">
+        <div class="about-stat-num">1M+</div>
+        <div class="about-stat-label">Meditation minutes logged</div>
+      </div>
+      <div class="about-stat-card" style="background:var(--cream-3)">
+        <div class="about-stat-num">24/7</div>
+        <div class="about-stat-label">AI companion availability</div>
+      </div>
+    </div>
+    <div class="about-text">
+      <div class="section-label reveal">Our Mission</div>
+      <h2 class="section-headline reveal reveal-delay-1">Mental wellness should be <em>accessible</em> to everyone</h2>
+      <p class="section-sub reveal reveal-delay-2">We built Zen Alpha because we believe no one should have to wait weeks for a therapy appointment when they need support today. Technology and compassion, working together.</p>
+      <div class="about-values">
+        <div class="about-value reveal reveal-delay-2">
+          <div class="about-val-dot" style="background:var(--sage)"></div>
+          <div class="about-val-text"><strong>Compassion first.</strong> Every feature is designed around how you feel, not what looks impressive.</div>
+        </div>
+        <div class="about-value reveal reveal-delay-3">
+          <div class="about-val-dot" style="background:var(--terra)"></div>
+          <div class="about-val-text"><strong>No stigma.</strong> Mental health is health. We speak plainly, warmly, without clinical coldness.</div>
+        </div>
+        <div class="about-value reveal reveal-delay-4">
+          <div class="about-val-dot" style="background:var(--rose)"></div>
+          <div class="about-val-text"><strong>Always improving.</strong> We work with wellness researchers and real users to make Zen better every week.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- NEWSLETTER -->
+<section id="newsletter">
+  <div class="nl-bg-orb"></div>
+  <div class="nl-bg-orb"></div>
+  <div class="section-label reveal">Stay Connected</div>
+  <h2 class="section-headline reveal reveal-delay-1">A gentle note in<br><em>your inbox, weekly</em></h2>
+  <p class="newsletter-sub reveal reveal-delay-2">Mindfulness tips, new features, inspiring community stories, and one beautiful quote — every Thursday morning.</p>
+  <form class="newsletter-form reveal reveal-delay-3" onsubmit="handleNewsletter(event)">
+    <input class="newsletter-input" type="email" placeholder="your@email.com" id="nl-email">
+    <button class="newsletter-btn" type="submit" id="nl-btn">Subscribe</button>
+  </form>
+  <p class="newsletter-note reveal reveal-delay-4">No spam, ever. Unsubscribe with one click.</p>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-top">
+    <div class="footer-brand">
+      <a href="#hero" class="footer-logo">
+        <div class="nav-logo-mark">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="1.6"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4"/><circle cx="12" cy="12" r="1.5" fill="white" stroke="none"/></svg>
+        </div>
+        Zen Alpha
+      </a>
+      <p class="footer-tagline">A calm, beautiful space for your mental wellness journey — every single day.</p>
+      <div class="footer-socials">
+        <div class="social-btn"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="oklch(65% 0.02 60)" strokeWidth="1.8"><path d="M23 3a10.9 10.9 0 01-3.14 1.53 4.48 4.48 0 00-7.86 3v1A10.66 10.66 0 013 4s-4 9 5 13a11.64 11.64 0 01-7 2c9 5 20 0 20-11.5a4.5 4.5 0 00-.08-.83A7.72 7.72 0 0023 3z"/></svg></div>
+        <div class="social-btn"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="oklch(65% 0.02 60)" strokeWidth="1.8"><rect x="2" y="2" width="20" height="20" rx="5"/><path d="M16 11.37A4 4 0 1112.63 8 4 4 0 0116 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg></div>
+        <div class="social-btn"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="oklch(65% 0.02 60)" strokeWidth="1.8"><path d="M16 8a6 6 0 016 6v7h-4v-7a2 2 0 00-2-2 2 2 0 00-2 2v7h-4v-7a6 6 0 016-6zM2 9h4v12H2z"/><circle cx="4" cy="4" r="2"/></svg></div>
+      </div>
+    </div>
+    <div>
+      <div class="footer-col-title">Product</div>
+      <div class="footer-links">
+        <a href="#features">Features</a>
+        <a href="#pricing">Pricing</a>
+        <a href="#how">How It Works</a>
+        <a href="Zen Alpha.html" target="_blank">Try the App</a>
+      </div>
+    </div>
+    <div>
+      <div class="footer-col-title">Resources</div>
+      <div class="footer-links">
+        <a href="#">Blog</a>
+        <a href="#">Meditation Guide</a>
+        <a href="#">Community</a>
+        <a href="#">Help Center</a>
+      </div>
+    </div>
+    <div>
+      <div class="footer-col-title">Company</div>
+      <div class="footer-links">
+        <a href="#about">About</a>
+        <a href="#">Careers</a>
+        <a href="#">Press</a>
+        <a href="#">Contact</a>
+      </div>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <div class="footer-copy">© 2026 Zen Alpha. Made with care.</div>
+    <div class="footer-legal">
+      <a href="#">Privacy Policy</a>
+      <a href="#">Terms of Service</a>
+      <a href="#">Cookie Settings</a>
+    </div>
+  </div>
+</footer>
+
+<script>
+// ── MOBILE MENU ──
+function toggleMenu() {
+  const menu = document.getElementById('mobile-menu');
+  const btn = document.getElementById('hamburger');
+  const open = menu.classList.toggle('open');
+  btn.classList.toggle('open', open);
+  document.body.style.overflow = open ? 'hidden' : '';
+}
+function closeMenu() {
+  document.getElementById('mobile-menu').classList.remove('open');
+  document.getElementById('hamburger').classList.remove('open');
+  document.body.style.overflow = '';
+}
+// Close menu on outside click
+document.addEventListener('click', function(e) {
+  const menu = document.getElementById('mobile-menu');
+  const btn = document.getElementById('hamburger');
+  if (menu.classList.contains('open') && !menu.contains(e.target) && !btn.contains(e.target)) closeMenu();
+});
+
+// ── SCROLL REVEAL ──
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(e => { if(e.isIntersecting) e.target.classList.add('visible'); });
+}, { threshold: 0.12, rootMargin: '0px 0px -40px 0px' });
+document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+// Trigger visible on load for hero
+document.querySelectorAll('#hero .reveal').forEach(el => {
+  setTimeout(() => el.classList.add('visible'), 100);
+});
+
+// ── NAV SCROLL ──
+window.addEventListener('scroll', () => {
+  document.getElementById('navbar').classList.toggle('scrolled', window.scrollY > 20);
+});
+
+// ── FAQ ──
+function toggleFaq(btn) {
+  const item = btn.closest('.faq-item');
+  const isOpen = item.classList.contains('open');
+  document.querySelectorAll('.faq-item.open').forEach(i => i.classList.remove('open'));
+  if (!isOpen) item.classList.add('open');
+}
+
+// ── PRICING TOGGLE ──
+let isAnnual = false;
+function setMonthly() {
+  isAnnual = false;
+  document.getElementById('monthly-btn').classList.add('active');
+  document.getElementById('annual-btn').classList.remove('active');
+  document.getElementById('annual-save').style.display = 'none';
+  document.getElementById('calm-price').textContent = '$9';
+  document.getElementById('calm-per').textContent = 'per month';
+  document.getElementById('ser-price').textContent = '$19';
+  document.getElementById('ser-per').textContent = 'per month';
+}
+function setAnnual() {
+  isAnnual = true;
+  document.getElementById('annual-btn').classList.add('active');
+  document.getElementById('monthly-btn').classList.remove('active');
+  document.getElementById('annual-save').style.display = 'inline-block';
+  document.getElementById('calm-price').textContent = '$5';
+  document.getElementById('calm-per').textContent = 'per month, billed annually';
+  document.getElementById('ser-price').textContent = '$11';
+  document.getElementById('ser-per').textContent = 'per month, billed annually';
+}
+
+// ── NEWSLETTER ──
+function handleNewsletter(e) {
+  e.preventDefault();
+  const btn = document.getElementById('nl-btn');
+  const email = document.getElementById('nl-email').value;
+  if (!email) return;
+  btn.textContent = '✓ You\'re in!';
+  btn.style.background = 'var(--sage-light)';
+  btn.style.color = 'var(--sage-dark)';
+  document.getElementById('nl-email').value = '';
+}
+</script>
+</body>
+</html>
