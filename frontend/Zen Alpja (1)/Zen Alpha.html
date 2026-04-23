@@ -1,0 +1,1518 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Zen Alpha</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+<script type="text/babel" src="ios-frame.jsx"></script>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { width: 100%; height: 100%; background: oklch(20% 0.02 60); display: flex; align-items: center; justify-content: center; font-family: 'DM Sans', sans-serif; }
+  body { overflow: hidden; }
+
+  :root {
+    --cream: oklch(97% 0.012 75);
+    --cream-2: oklch(93% 0.018 72);
+    --cream-3: oklch(89% 0.022 70);
+    --sage: oklch(56% 0.09 155);
+    --sage-light: oklch(88% 0.05 155);
+    --terra: oklch(62% 0.10 42);
+    --terra-light: oklch(90% 0.05 42);
+    --rose: oklch(70% 0.07 10);
+    --rose-light: oklch(92% 0.04 10);
+    --text-dark: oklch(22% 0.025 60);
+    --text-mid: oklch(45% 0.03 65);
+    --text-light: oklch(62% 0.025 65);
+    --border: oklch(87% 0.02 70);
+  }
+
+  .app-shell {
+    width: 390px;
+    height: 844px;
+    background: var(--cream);
+    overflow: hidden;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* Status bar */
+  .status-bar {
+    height: 48px;
+    background: transparent;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 20px 0;
+    flex-shrink: 0;
+    z-index: 10;
+    position: relative;
+  }
+  .status-time { font-size: 15px; font-weight: 600; color: var(--text-dark); letter-spacing: -0.3px; }
+  .status-icons { display: flex; gap: 6px; align-items: center; }
+  .status-icons svg { width: 16px; height: 16px; fill: var(--text-dark); }
+
+  /* Scroll container */
+  .screen-scroll {
+    flex: 1;
+    overflow-y: auto;
+    overflow-x: hidden;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+  .screen-scroll::-webkit-scrollbar { display: none; }
+
+  /* Bottom Nav */
+  .bottom-nav {
+    height: 78px;
+    background: var(--cream);
+    border-top: 1px solid var(--border);
+    display: flex;
+    align-items: flex-start;
+    padding-top: 10px;
+    flex-shrink: 0;
+    z-index: 10;
+  }
+  .nav-item {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    cursor: pointer;
+    padding: 4px 0;
+    transition: opacity 0.2s;
+  }
+  .nav-item:active { opacity: 0.6; }
+  .nav-icon {
+    width: 26px;
+    height: 26px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .nav-label {
+    font-size: 10px;
+    font-weight: 500;
+    color: var(--text-light);
+    letter-spacing: 0.2px;
+  }
+  .nav-item.active .nav-label { color: var(--sage); }
+  .nav-item.active .nav-dot {
+    width: 4px; height: 4px; border-radius: 2px;
+    background: var(--sage);
+    margin-top: 2px;
+  }
+
+  /* ---- HOME SCREEN ---- */
+  .home-header {
+    padding: 20px 24px 0;
+  }
+  .home-greeting {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 13px;
+    font-weight: 400;
+    color: var(--text-light);
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    margin-bottom: 4px;
+  }
+  .home-name {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 34px;
+    font-weight: 500;
+    color: var(--text-dark);
+    line-height: 1.1;
+  }
+  .home-name em { font-style: italic; color: var(--sage); }
+
+  .breathe-card {
+    margin: 20px 24px 0;
+    background: linear-gradient(135deg, oklch(38% 0.08 155), oklch(28% 0.06 170));
+    border-radius: 24px;
+    padding: 28px 24px;
+    position: relative;
+    overflow: hidden;
+  }
+  .breathe-card-label {
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: oklch(80% 0.05 155);
+    margin-bottom: 10px;
+  }
+  .breathe-card-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 26px;
+    font-weight: 400;
+    color: white;
+    margin-bottom: 6px;
+  }
+  .breathe-card-sub {
+    font-size: 13px;
+    color: oklch(82% 0.04 155);
+    margin-bottom: 20px;
+  }
+  .breathe-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: white;
+    color: oklch(38% 0.08 155);
+    border: none;
+    border-radius: 50px;
+    padding: 10px 20px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  .breathe-orb {
+    position: absolute;
+    right: -20px;
+    top: -20px;
+    width: 130px;
+    height: 130px;
+    border-radius: 50%;
+    background: oklch(50% 0.07 155 / 0.3);
+    animation: orbPulse 4s ease-in-out infinite;
+  }
+  .breathe-orb2 {
+    position: absolute;
+    right: 20px;
+    top: 20px;
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background: oklch(60% 0.06 155 / 0.2);
+    animation: orbPulse 4s ease-in-out infinite 1s;
+  }
+  @keyframes orbPulse {
+    0%, 100% { transform: scale(1); opacity: 0.6; }
+    50% { transform: scale(1.15); opacity: 1; }
+  }
+
+  .section-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 24px 24px 12px;
+  }
+  .section-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 22px;
+    font-weight: 500;
+    color: var(--text-dark);
+  }
+  .section-link {
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--sage);
+    cursor: pointer;
+    letter-spacing: 0.3px;
+  }
+
+  .features-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    padding: 0 24px;
+  }
+  .feature-card {
+    border-radius: 20px;
+    padding: 20px 18px;
+    cursor: pointer;
+    transition: transform 0.15s, box-shadow 0.15s;
+    position: relative;
+    overflow: hidden;
+    min-height: 110px;
+  }
+  .feature-card:active { transform: scale(0.97); }
+  .feature-card.sage { background: var(--sage-light); }
+  .feature-card.terra { background: var(--terra-light); }
+  .feature-card.rose { background: var(--rose-light); }
+  .feature-card.cream { background: var(--cream-3); }
+  .feature-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 10px;
+  }
+  .feature-card.sage .feature-icon { background: oklch(56% 0.09 155 / 0.2); }
+  .feature-card.terra .feature-icon { background: oklch(62% 0.10 42 / 0.2); }
+  .feature-card.rose .feature-icon { background: oklch(70% 0.07 10 / 0.2); }
+  .feature-card.cream .feature-icon { background: oklch(75% 0.04 70 / 0.3); }
+  .feature-name {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-dark);
+    line-height: 1.3;
+  }
+  .feature-sub {
+    font-size: 11px;
+    color: var(--text-mid);
+    margin-top: 3px;
+  }
+
+  .quote-strip {
+    margin: 20px 24px;
+    background: var(--cream-2);
+    border-radius: 20px;
+    padding: 20px;
+    border-left: 3px solid var(--terra);
+  }
+  .quote-strip-label {
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--terra);
+    margin-bottom: 8px;
+  }
+  .quote-strip-text {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 18px;
+    font-style: italic;
+    color: var(--text-dark);
+    line-height: 1.5;
+  }
+  .quote-strip-author {
+    font-size: 12px;
+    color: var(--text-light);
+    margin-top: 8px;
+  }
+
+  /* ---- THERAPIST SCREEN ---- */
+  .page-header {
+    padding: 16px 24px 20px;
+    border-bottom: 1px solid var(--border);
+  }
+  .page-back {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+    color: var(--sage);
+    cursor: pointer;
+    margin-bottom: 14px;
+    font-weight: 500;
+  }
+  .page-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 30px;
+    font-weight: 500;
+    color: var(--text-dark);
+  }
+  .page-subtitle {
+    font-size: 13px;
+    color: var(--text-light);
+    margin-top: 4px;
+  }
+
+  .therapist-banner {
+    margin: 20px 24px 0;
+    background: linear-gradient(135deg, oklch(88% 0.06 42), oklch(92% 0.04 30));
+    border-radius: 20px;
+    padding: 20px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+  .therapist-avatar-wrap {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background: oklch(75% 0.08 42 / 0.4);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    overflow: hidden;
+  }
+  .therapist-banner-text .name {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 20px;
+    font-weight: 500;
+    color: var(--text-dark);
+  }
+  .therapist-banner-text .role {
+    font-size: 12px;
+    color: var(--text-mid);
+    margin-top: 2px;
+  }
+  .therapist-banner-text .status {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 11px;
+    color: var(--sage);
+    font-weight: 500;
+    margin-top: 6px;
+  }
+  .status-dot {
+    width: 7px; height: 7px;
+    border-radius: 50%;
+    background: var(--sage);
+  }
+
+  .session-types {
+    padding: 0 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .session-type-card {
+    background: var(--cream-2);
+    border-radius: 18px;
+    padding: 18px 20px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    cursor: pointer;
+    transition: background 0.2s;
+    border: 1.5px solid transparent;
+  }
+  .session-type-card:active { background: var(--cream-3); }
+  .session-type-card.selected { border-color: var(--sage); background: var(--sage-light); }
+  .session-type-icon {
+    width: 44px; height: 44px;
+    border-radius: 14px;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .session-type-icon.live { background: var(--sage-light); }
+  .session-type-icon.async { background: var(--terra-light); }
+  .session-type-text .st-name {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--text-dark);
+  }
+  .session-type-text .st-desc {
+    font-size: 12px;
+    color: var(--text-mid);
+    margin-top: 2px;
+  }
+  .st-arrow {
+    margin-left: auto;
+    color: var(--text-light);
+  }
+
+  .therapist-list { padding: 0 24px; display: flex; flex-direction: column; gap: 12px; }
+  .therapist-card {
+    background: var(--cream-2);
+    border-radius: 18px;
+    padding: 16px 18px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    cursor: pointer;
+  }
+  .t-avatar {
+    width: 50px; height: 50px; border-radius: 50%;
+    flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 22px;
+    font-weight: 500;
+    color: white;
+  }
+  .t-info .t-name {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--text-dark);
+  }
+  .t-info .t-spec {
+    font-size: 12px;
+    color: var(--text-mid);
+    margin-top: 1px;
+  }
+  .t-info .t-rating {
+    font-size: 11px;
+    color: var(--terra);
+    margin-top: 4px;
+    font-weight: 500;
+  }
+  .t-btn {
+    margin-left: auto;
+    background: var(--sage);
+    color: white;
+    border: none;
+    border-radius: 12px;
+    padding: 8px 14px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    flex-shrink: 0;
+  }
+
+  /* ---- COMMUNITY SCREEN ---- */
+  .community-search {
+    margin: 16px 24px;
+    background: var(--cream-2);
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 16px;
+  }
+  .community-search input {
+    flex: 1;
+    border: none;
+    background: transparent;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    color: var(--text-dark);
+    outline: none;
+  }
+  .community-search input::placeholder { color: var(--text-light); }
+
+  .community-tags {
+    display: flex;
+    gap: 8px;
+    padding: 0 24px 16px;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  .community-tags::-webkit-scrollbar { display: none; }
+  .tag {
+    padding: 6px 14px;
+    border-radius: 50px;
+    font-size: 12px;
+    font-weight: 500;
+    white-space: nowrap;
+    cursor: pointer;
+    flex-shrink: 0;
+  }
+  .tag.active { background: var(--sage); color: white; }
+  .tag.inactive { background: var(--cream-2); color: var(--text-mid); }
+
+  .community-posts { padding: 0 24px; display: flex; flex-direction: column; gap: 14px; }
+  .post-card {
+    background: var(--cream-2);
+    border-radius: 20px;
+    padding: 18px 20px;
+  }
+  .post-header { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
+  .post-avatar {
+    width: 36px; height: 36px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px; font-weight: 600; color: white;
+    flex-shrink: 0;
+  }
+  .post-meta .p-name { font-size: 13px; font-weight: 600; color: var(--text-dark); }
+  .post-meta .p-time { font-size: 11px; color: var(--text-light); margin-top: 1px; }
+  .post-tag {
+    margin-left: auto;
+    padding: 4px 10px;
+    border-radius: 50px;
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+  }
+  .post-body {
+    font-size: 14px;
+    color: var(--text-dark);
+    line-height: 1.6;
+    margin-bottom: 14px;
+  }
+  .post-actions { display: flex; gap: 16px; }
+  .post-action {
+    display: flex; align-items: center; gap: 5px;
+    font-size: 12px; color: var(--text-light);
+    cursor: pointer;
+    font-weight: 500;
+  }
+  .post-action.liked { color: var(--rose); }
+
+  /* ---- QUOTES SCREEN ---- */
+  .quotes-main-card {
+    margin: 16px 24px 0;
+    background: linear-gradient(160deg, oklch(28% 0.06 170), oklch(38% 0.09 155));
+    border-radius: 28px;
+    padding: 36px 28px;
+    min-height: 260px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    position: relative;
+    overflow: hidden;
+  }
+  .quotes-deco {
+    position: absolute;
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 180px;
+    font-style: italic;
+    color: white;
+    opacity: 0.05;
+    top: -30px;
+    left: 10px;
+    line-height: 1;
+    user-select: none;
+  }
+  .quote-main-text {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 26px;
+    font-style: italic;
+    color: white;
+    line-height: 1.45;
+    font-weight: 300;
+    position: relative;
+    z-index: 1;
+  }
+  .quote-main-author {
+    font-size: 13px;
+    color: oklch(80% 0.05 155);
+    font-weight: 500;
+    position: relative;
+    z-index: 1;
+    margin-top: 20px;
+  }
+  .quote-actions {
+    display: flex;
+    gap: 10px;
+    margin: 16px 24px 0;
+  }
+  .quote-action-btn {
+    flex: 1;
+    padding: 13px;
+    border-radius: 14px;
+    border: none;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+  }
+  .quote-action-btn.primary { background: var(--sage); color: white; }
+  .quote-action-btn.secondary { background: var(--cream-2); color: var(--text-dark); }
+
+  .quotes-list { padding: 0 24px; display: flex; flex-direction: column; gap: 12px; }
+  .quote-list-item {
+    background: var(--cream-2);
+    border-radius: 16px;
+    padding: 16px 18px;
+    display: flex;
+    gap: 14px;
+    align-items: flex-start;
+    cursor: pointer;
+  }
+  .quote-list-bar {
+    width: 3px;
+    border-radius: 2px;
+    flex-shrink: 0;
+    align-self: stretch;
+  }
+  .quote-list-text {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 16px;
+    font-style: italic;
+    color: var(--text-dark);
+    line-height: 1.5;
+  }
+  .quote-list-author { font-size: 11px; color: var(--text-light); margin-top: 5px; font-weight: 500; }
+
+  /* ---- VIDEOS SCREEN ---- */
+  .featured-video {
+    margin: 16px 24px 0;
+    border-radius: 22px;
+    overflow: hidden;
+    position: relative;
+    height: 200px;
+    cursor: pointer;
+    background: linear-gradient(160deg, oklch(25% 0.04 60), oklch(35% 0.06 70));
+  }
+  .video-placeholder {
+    width: 100%; height: 100%;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    gap: 10px;
+  }
+  .video-play-btn {
+    width: 52px; height: 52px; border-radius: 50%;
+    background: white;
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 4px 20px black/30%;
+  }
+  .video-overlay-label {
+    font-size: 11px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: oklch(80% 0.03 60);
+    font-weight: 500;
+  }
+  .video-overlay-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 22px;
+    color: white;
+    font-weight: 400;
+    text-align: center;
+    padding: 0 20px;
+  }
+  .video-duration {
+    position: absolute;
+    bottom: 14px;
+    right: 16px;
+    background: black/40%;
+    color: white;
+    font-size: 11px;
+    font-weight: 600;
+    padding: 3px 8px;
+    border-radius: 6px;
+  }
+
+  .video-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    padding: 0 24px;
+  }
+  .video-thumb {
+    border-radius: 16px;
+    overflow: hidden;
+    cursor: pointer;
+    position: relative;
+  }
+  .video-thumb-bg {
+    height: 110px;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .video-thumb-play {
+    width: 36px; height: 36px; border-radius: 50%;
+    background: white/80%;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .video-thumb-info {
+    background: var(--cream-2);
+    padding: 10px 12px;
+  }
+  .video-thumb-title { font-size: 13px; font-weight: 600; color: var(--text-dark); line-height: 1.3; }
+  .video-thumb-meta { font-size: 11px; color: var(--text-light); margin-top: 3px; }
+
+  /* ---- MEDITATION SCREEN ---- */
+  .breathe-exercise {
+    margin: 16px 24px 0;
+    background: linear-gradient(135deg, oklch(88% 0.05 42), oklch(92% 0.04 55));
+    border-radius: 28px;
+    padding: 32px 24px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .breathe-ring-outer {
+    width: 120px; height: 120px; border-radius: 50%;
+    border: 2px solid oklch(62% 0.10 42 / 0.3);
+    display: flex; align-items: center; justify-content: center;
+    position: relative;
+    margin-bottom: 20px;
+    animation: breatheRing 6s ease-in-out infinite;
+  }
+  .breathe-ring-inner {
+    width: 84px; height: 84px; border-radius: 50%;
+    background: oklch(62% 0.10 42 / 0.15);
+    border: 2px solid oklch(62% 0.10 42 / 0.4);
+    display: flex; align-items: center; justify-content: center;
+    animation: breatheRing 6s ease-in-out infinite 0.5s;
+  }
+  .breathe-center {
+    width: 52px; height: 52px; border-radius: 50%;
+    background: var(--terra);
+    display: flex; align-items: center; justify-content: center;
+    animation: breatheRing 6s ease-in-out infinite 1s;
+  }
+  @keyframes breatheRing {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.12); }
+  }
+  .breathe-instruction {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 18px;
+    font-style: italic;
+    color: var(--text-dark);
+    margin-bottom: 4px;
+  }
+  .breathe-timer {
+    font-size: 12px;
+    color: var(--text-mid);
+    letter-spacing: 1px;
+  }
+  .breathe-start-btn {
+    margin-top: 18px;
+    background: var(--terra);
+    color: white;
+    border: none;
+    border-radius: 50px;
+    padding: 13px 32px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    letter-spacing: 0.3px;
+  }
+
+  .meditation-list { padding: 0 24px; display: flex; flex-direction: column; gap: 12px; }
+  .meditation-item {
+    background: var(--cream-2);
+    border-radius: 18px;
+    padding: 16px 18px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    cursor: pointer;
+  }
+  .med-icon {
+    width: 48px; height: 48px; border-radius: 16px;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .med-info .med-title { font-size: 14px; font-weight: 600; color: var(--text-dark); }
+  .med-info .med-meta { font-size: 12px; color: var(--text-mid); margin-top: 2px; }
+  .med-info .med-tags { display: flex; gap: 5px; margin-top: 6px; }
+  .med-tag {
+    font-size: 10px;
+    font-weight: 600;
+    padding: 2px 8px;
+    border-radius: 50px;
+    letter-spacing: 0.3px;
+  }
+  .med-play {
+    margin-left: auto;
+    width: 36px; height: 36px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+
+  /* Transitions */
+  .screen-enter {
+    animation: screenIn 0.28s cubic-bezier(0.25, 0.46, 0.45, 0.94) both;
+  }
+  @keyframes screenIn {
+    from { opacity: 0; transform: translateX(22px); }
+    to { opacity: 1; transform: translateX(0); }
+  }
+
+  .spacer { height: 24px; }
+</style>
+</head>
+<body>
+<div id="root"></div>
+
+<script type="text/babel">
+const { useState, useEffect, useRef } = React;
+
+/* ── SVG ICONS ── */
+const Icons = {
+  home: (active) => (
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+      <path d="M3 9.5L12 3l9 6.5V20a1 1 0 01-1 1H5a1 1 0 01-1-1V9.5z"
+        fill={active ? "var(--sage)" : "none"}
+        stroke={active ? "var(--sage)" : "var(--text-light)"}
+        strokeWidth="1.8" strokeLinejoin="round"/>
+      <path d="M9 21V12h6v9" stroke={active ? "var(--sage)" : "var(--text-light)"} strokeWidth="1.8" strokeLinecap="round"/>
+    </svg>
+  ),
+  therapist: (active) => (
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+      <circle cx="12" cy="8" r="4" stroke={active ? "var(--sage)" : "var(--text-light)"} strokeWidth="1.8"/>
+      <path d="M4 20c0-3.314 3.582-6 8-6s8 2.686 8 6" stroke={active ? "var(--sage)" : "var(--text-light)"} strokeWidth="1.8" strokeLinecap="round"/>
+      <circle cx="18" cy="6" r="3" fill={active ? "var(--sage)" : "none"} stroke={active ? "var(--sage)" : "var(--text-light)"} strokeWidth="1.5"/>
+      <path d="M16.5 6h3M18 4.5v3" stroke="white" strokeWidth="1.3" strokeLinecap="round"/>
+    </svg>
+  ),
+  community: (active) => (
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+      <path d="M17 8C17 11.3137 14.3137 14 11 14C7.68629 14 5 11.3137 5 8C5 4.68629 7.68629 2 11 2" stroke={active ? "var(--sage)" : "var(--text-light)"} strokeWidth="1.8" strokeLinecap="round"/>
+      <path d="M21 6C21 8.20914 19.2091 10 17 10" stroke={active ? "var(--sage)" : "var(--text-light)"} strokeWidth="1.8" strokeLinecap="round"/>
+      <path d="M2 22c0-3.866 4.029-7 9-7" stroke={active ? "var(--sage)" : "var(--text-light)"} strokeWidth="1.8" strokeLinecap="round"/>
+      <path d="M22 20c0-2.209-2.239-4-5-4" stroke={active ? "var(--sage)" : "var(--text-light)"} strokeWidth="1.8" strokeLinecap="round"/>
+    </svg>
+  ),
+  video: (active) => (
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+      <rect x="2" y="5" width="15" height="14" rx="3" stroke={active ? "var(--sage)" : "var(--text-light)"} strokeWidth="1.8"/>
+      <path d="M17 9l5-3v12l-5-3V9z" stroke={active ? "var(--sage)" : "var(--text-light)"} strokeWidth="1.8" strokeLinejoin="round"/>
+    </svg>
+  ),
+  meditation: (active) => (
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+      <circle cx="12" cy="12" r="9" stroke={active ? "var(--sage)" : "var(--text-light)"} strokeWidth="1.8"/>
+      <circle cx="12" cy="12" r="4" stroke={active ? "var(--sage)" : "var(--text-light)"} strokeWidth="1.8"/>
+      <circle cx="12" cy="12" r="1.5" fill={active ? "var(--sage)" : "var(--text-light)"}/>
+    </svg>
+  ),
+  play: (color="white", size=20) => (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill={color}>
+      <path d="M8 5.14v14l11-7-11-7z"/>
+    </svg>
+  ),
+  heart: (filled) => (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill={filled ? "var(--rose)" : "none"} stroke={filled ? "var(--rose)" : "var(--text-light)"} strokeWidth="1.8">
+      <path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/>
+    </svg>
+  ),
+  chat: () => (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--text-light)" strokeWidth="1.8">
+      <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/>
+    </svg>
+  ),
+  share: () => (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--text-light)" strokeWidth="1.8">
+      <circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/>
+      <path d="M8.59 13.51l6.83 3.98M15.41 6.51L8.59 10.49"/>
+    </svg>
+  ),
+  arrow: (dir="right") => (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+      {dir === "right" ? <path d="M9 18l6-6-6-6"/> : <path d="M15 18l-6-6 6-6"/>}
+    </svg>
+  ),
+  back: () => (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--sage)" strokeWidth="2" strokeLinecap="round">
+      <path d="M15 18l-6-6 6-6"/>
+    </svg>
+  ),
+  search: () => (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--text-light)" strokeWidth="1.8">
+      <circle cx="11" cy="11" r="7"/><path d="M21 21l-4.35-4.35" strokeLinecap="round"/>
+    </svg>
+  ),
+  star: () => (
+    <svg width="12" height="12" viewBox="0 0 24 24" fill="var(--terra)" stroke="none">
+      <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+    </svg>
+  ),
+  leaf: () => (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--sage)" strokeWidth="1.8">
+      <path d="M17 8C8 10 5.9 16.17 3.82 19.39c1.54.8 3.29 1.07 5 .78C12.7 19.47 17 14.95 17 8z"/>
+      <path d="M3 19l4-4" strokeLinecap="round"/>
+    </svg>
+  ),
+};
+
+/* ── DATA ── */
+const therapists = [
+  { id: 1, name: "Dr. Amara Osei", spec: "Anxiety & Mindfulness", rating: "4.9 ★", color: "oklch(56% 0.09 155)", init: "A" },
+  { id: 2, name: "Dr. Leila Haddad", spec: "Depression & CBT", rating: "4.8 ★", color: "oklch(62% 0.10 42)", init: "L" },
+  { id: 3, name: "Dr. James Park", spec: "Stress & Life Transitions", rating: "4.7 ★", color: "oklch(55% 0.08 290)", init: "J" },
+];
+
+const posts = [
+  { id: 1, author: "Maya R.", time: "2h ago", tag: "Anxiety", tagColor: "var(--rose-light)", tagText: "var(--rose)", color: "oklch(70% 0.07 10)", text: "After 3 months of therapy, I finally spoke in a meeting today without freezing. Small victory, but it means everything to me. 💙", likes: 42, comments: 9, liked: false },
+  { id: 2, author: "Tomás B.", time: "5h ago", tag: "Meditation", tagColor: "var(--sage-light)", tagText: "var(--sage)", color: "oklch(56% 0.09 155)", text: "The 10-minute morning breathing exercise has changed my mornings completely. Anyone else found that consistency beats duration?", likes: 31, comments: 14, liked: true },
+  { id: 3, author: "Nadia K.", time: "1d ago", tag: "Growth", tagColor: "var(--terra-light)", tagText: "var(--terra)", color: "oklch(62% 0.10 42)", text: "Reminder: healing isn't linear. Some weeks are harder than others and that's completely okay. You're still moving forward.", likes: 88, comments: 22, liked: false },
+];
+
+const quotes = [
+  { text: "The present moment is the only moment available to us, and it is the door to all moments.", author: "Thich Nhat Hanh", color: "var(--sage)" },
+  { text: "You don't have to control your thoughts; you just have to stop letting them control you.", author: "Dan Millman", color: "var(--terra)" },
+  { text: "Within you, there is a stillness and a sanctuary to which you can retreat at any time.", author: "Hermann Hesse", color: "var(--rose)" },
+  { text: "Breath is the link between mind and body.", author: "Dan Brulé", color: "var(--sage)" },
+];
+
+const videos = [
+  { id: 1, title: "Ocean Wave Breathing", duration: "8 min", category: "Breathwork", bg: "linear-gradient(135deg, oklch(35% 0.08 220), oklch(28% 0.06 240))" },
+  { id: 2, title: "Evening Wind Down", duration: "12 min", category: "Relaxation", bg: "linear-gradient(135deg, oklch(32% 0.07 42), oklch(25% 0.05 55))" },
+  { id: 3, title: "Forest Rain Sounds", duration: "30 min", category: "Sleep", bg: "linear-gradient(135deg, oklch(30% 0.07 155), oklch(22% 0.05 170))" },
+  { id: 4, title: "Body Scan Release", duration: "15 min", category: "Mindfulness", bg: "linear-gradient(135deg, oklch(38% 0.07 290), oklch(28% 0.05 310))" },
+];
+
+const meditations = [
+  { id: 1, title: "Morning Clarity", meta: "7 min · Beginner", tags: ["Breath", "Focus"], iconBg: "var(--sage-light)", iconColor: "var(--sage)" },
+  { id: 2, title: "Anxiety Relief", meta: "10 min · All levels", tags: ["Calm", "Grounding"], iconBg: "var(--rose-light)", iconColor: "var(--rose)" },
+  { id: 3, title: "Deep Sleep Prep", meta: "15 min · Beginner", tags: ["Sleep", "Relax"], iconBg: "oklch(90% 0.04 220)", iconColor: "oklch(50% 0.09 220)" },
+  { id: 4, title: "Self-Compassion", meta: "12 min · All levels", tags: ["Healing", "Love"], iconBg: "var(--terra-light)", iconColor: "var(--terra)" },
+];
+
+/* ── SCREENS ── */
+function HomeScreen({ navigate }) {
+  const [journalText, setJournalText] = useState("");
+  const [journalSaved, setJournalSaved] = useState(false);
+  const [entries, setEntries] = useState([
+    { date: "Yesterday", text: "Felt a bit anxious before the presentation but the breathing exercise really helped calm me down. Proud of how I handled it.", mood: "🙂" },
+    { date: "Mon, Apr 28", text: "Quiet day. Spent time in the garden and tried the body scan meditation for the first time.", mood: "😊" },
+  ]);
+  const [showAllEntries, setShowAllEntries] = useState(false);
+
+  const saveEntry = () => {
+    if (!journalText.trim()) return;
+    setEntries(e => [{ date: "Today", text: journalText.trim(), mood: "😐" }, ...e]);
+    setJournalText("");
+    setJournalSaved(true);
+    setTimeout(() => setJournalSaved(false), 2200);
+  };
+
+  return (
+    <div className="screen-enter">
+      <div className="home-header">
+        <div className="home-greeting">Good morning</div>
+        <div className="home-name">How are you <em>feeling</em><br/>today?</div>
+      </div>
+
+      <div className="breathe-card" onClick={() => navigate("meditation")}>
+        <div className="breathe-orb"></div>
+        <div className="breathe-orb2"></div>
+        <div className="breathe-card-label">Daily Practice</div>
+        <div className="breathe-card-title">Morning Breathing</div>
+        <div className="breathe-card-sub">5 min · Start your day with calm</div>
+        <button className="breathe-btn">
+          {Icons.play("oklch(38% 0.08 155)", 14)}
+          Begin Session
+        </button>
+      </div>
+
+      <div className="section-header">
+        <div className="section-title">Explore</div>
+      </div>
+
+      <div className="features-grid">
+        <div className="feature-card sage" onClick={() => navigate("therapist")}>
+          <div className="feature-icon">{Icons.therapist(false)}</div>
+          <div className="feature-name">Talk to Zen AI</div>
+          <div className="feature-sub">Your AI companion</div>
+        </div>
+        <div className="feature-card terra" onClick={() => navigate("community")}>
+          <div className="feature-icon">{Icons.community(false)}</div>
+          <div className="feature-name">Community</div>
+          <div className="feature-sub">Share & connect</div>
+        </div>
+        <div className="feature-card rose" onClick={() => navigate("videos")}>
+          <div className="feature-icon">{Icons.video(false)}</div>
+          <div className="feature-name">Calm Videos</div>
+          <div className="feature-sub">Soothing content</div>
+        </div>
+        <div className="feature-card cream" onClick={() => navigate("quotes")}>
+          <div className="feature-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--text-mid)" strokeWidth="1.8">
+              <path d="M3 21c3 0 7-1 7-8V5c0-1.25-.757-2.017-2-2H4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2 1 0 1 0 1 1v1c0 1-1 2-2 2s-1 .008-1 1.031V20c0 1 0 1 1 1z"/>
+              <path d="M15 21c3 0 7-1 7-8V5c0-1.25-.757-2.017-2-2h-4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2h.75c0 2.25.25 4-2.75 4v3c0 1 0 1 1 1z"/>
+            </svg>
+          </div>
+          <div className="feature-name">Daily Quotes</div>
+          <div className="feature-sub">Words of wisdom</div>
+        </div>
+      </div>
+
+      {/* Quote strip */}
+      <div className="quote-strip" style={{marginTop:4}} onClick={() => navigate("quotes")}>
+        <div className="quote-strip-label">Today's Reflection</div>
+        <div className="quote-strip-text">"The present moment is the only door to all moments."</div>
+        <div className="quote-strip-author">— Thich Nhat Hanh</div>
+      </div>
+
+      {/* ── JOURNAL SECTION ── */}
+      <div className="section-header" style={{paddingTop:28}}>
+        <div style={{display:"flex",alignItems:"center",gap:8}}>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--terra)" strokeWidth="1.8" strokeLinecap="round">
+            <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/>
+            <path d="M14 2v6h6M16 13H8M16 17H8M10 9H8"/>
+          </svg>
+          <div className="section-title">My Journal</div>
+        </div>
+        <div className="section-link" onClick={() => setShowAllEntries(s => !s)}>
+          {showAllEntries ? "Less" : "All entries"}
+        </div>
+      </div>
+
+      {/* Write card */}
+      <div style={{margin:"0 24px",background:"var(--cream-2)",borderRadius:22,padding:"18px 18px 14px",border:"1.5px solid var(--border)"}}>
+        <div style={{fontSize:12,fontWeight:600,color:"var(--terra)",letterSpacing:1.2,textTransform:"uppercase",marginBottom:10}}>
+          {new Date().toLocaleDateString("en-US",{weekday:"long",month:"long",day:"numeric"})}
+        </div>
+        <textarea
+          value={journalText}
+          onChange={e => setJournalText(e.target.value)}
+          placeholder="What's on your mind today? Write freely — this is just for you…"
+          style={{
+            width:"100%", minHeight:96, background:"transparent", border:"none",
+            fontFamily:"'Cormorant Garamond',serif", fontSize:17, lineHeight:1.65,
+            color:"var(--text-dark)", outline:"none", resize:"none",
+            placeholder: "color: var(--text-light)"
+          }}
+        />
+        <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginTop:8,borderTop:"1px solid var(--border)",paddingTop:10}}>
+          <div style={{fontSize:11,color:"var(--text-light)"}}>
+            {journalText.length > 0 ? `${journalText.length} chars` : "Private · Only you can see this"}
+          </div>
+          <button
+            onClick={saveEntry}
+            disabled={!journalText.trim()}
+            style={{
+              background: journalSaved ? "var(--sage)" : journalText.trim() ? "var(--terra)" : "var(--cream-3)",
+              color: journalText.trim() ? "white" : "var(--text-light)",
+              border:"none", borderRadius:50, padding:"8px 18px",
+              fontFamily:"'DM Sans',sans-serif", fontSize:13, fontWeight:600,
+              cursor: journalText.trim() ? "pointer" : "default",
+              transition:"all 0.2s", display:"flex", alignItems:"center", gap:6
+            }}
+          >
+            {journalSaved ? (
+              <><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5"><path d="M20 6L9 17l-5-5" strokeLinecap="round"/></svg> Saved</>
+            ) : "Save Entry"}
+          </button>
+        </div>
+      </div>
+
+      {/* Past entries */}
+      {entries.length > 0 && (
+        <div style={{margin:"14px 24px 0",display:"flex",flexDirection:"column",gap:10}}>
+          {(showAllEntries ? entries : entries.slice(0,2)).map((e,i) => (
+            <div key={i} style={{background:"var(--cream-2)",borderRadius:18,padding:"14px 16px",display:"flex",gap:12,alignItems:"flex-start",opacity: i===0&&e.date==="Today"?1:0.85}}>
+              <div style={{fontSize:22,flexShrink:0,marginTop:1}}>{e.mood}</div>
+              <div style={{flex:1}}>
+                <div style={{fontSize:10,fontWeight:600,color:"var(--text-light)",letterSpacing:1,textTransform:"uppercase",marginBottom:4}}>{e.date}</div>
+                <div style={{fontFamily:"'Cormorant Garamond',serif",fontSize:15,color:"var(--text-dark)",lineHeight:1.55,
+                  display:"-webkit-box",WebkitLineClamp:2,WebkitBoxOrient:"vertical",overflow:"hidden"}}>
+                  {e.text}
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      <div className="spacer"></div>
+    </div>
+  );
+}
+
+function TherapistScreen({ navigate }) {
+  const [messages, setMessages] = useState([
+    { from: "ai", text: "Hello, I'm Zen — your AI wellness companion. I'm here to listen without judgment, help you process your feelings, and guide you through difficult moments. How are you feeling today?" }
+  ]);
+  const [input, setInput] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [mood, setMood] = useState(null);
+  const moods = ["😔", "😟", "😐", "🙂", "😊"];
+  const scrollRef = React.useRef(null);
+
+  const sendMessage = async () => {
+    if (!input.trim() || loading) return;
+    const userMsg = input.trim();
+    setInput("");
+    setMessages(m => [...m, { from: "user", text: userMsg }]);
+    setLoading(true);
+    try {
+      const history = messages.map(m => ({ role: m.from === "ai" ? "assistant" : "user", content: m.text }));
+      history.push({ role: "user", content: userMsg });
+      const reply = await window.claude.complete({
+        messages: [
+          { role: "user", content: `You are Zen, a compassionate AI wellness companion inside a meditation and mental wellness app called Zen Alpha. You offer empathetic, supportive, non-judgmental responses to help users process emotions and feel heard. Keep responses warm, concise (2–3 sentences), and grounded. Never give medical diagnoses. Always validate feelings first before any suggestion.\n\nUser message: ${userMsg}` }
+        ]
+      });
+      setMessages(m => [...m, { from: "ai", text: reply }]);
+    } catch(e) {
+      setMessages(m => [...m, { from: "ai", text: "I'm here with you. Take your time — whenever you're ready, I'm listening." }]);
+    }
+    setLoading(false);
+  };
+
+  React.useEffect(() => {
+    if (scrollRef.current) {
+      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+    }
+  }, [messages, loading]);
+
+  return (
+    <div className="screen-enter" style={{display:"flex",flexDirection:"column",height:"100%"}}>
+      <div className="page-header">
+        <div className="page-back" onClick={() => navigate("home")}>{Icons.back()} Home</div>
+        <div style={{display:"flex",alignItems:"center",gap:12}}>
+          <div style={{width:42,height:42,borderRadius:"50%",background:"linear-gradient(135deg,oklch(56% 0.09 155),oklch(42% 0.08 170))",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}>
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="1.6">
+              <circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4"/><circle cx="12" cy="12" r="1.5" fill="white" stroke="none"/>
+            </svg>
+          </div>
+          <div>
+            <div style={{fontFamily:"'Cormorant Garamond',serif",fontSize:22,fontWeight:500,color:"var(--text-dark)"}}>Zen</div>
+            <div style={{fontSize:11,color:"var(--sage)",fontWeight:500,display:"flex",alignItems:"center",gap:4}}>
+              <span style={{width:6,height:6,borderRadius:"50%",background:"var(--sage)",display:"inline-block"}}></span>
+              AI Wellness Companion · Always here
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {!mood && (
+        <div style={{margin:"14px 24px",background:"var(--cream-2)",borderRadius:18,padding:"16px 18px"}}>
+          <div style={{fontSize:12,color:"var(--text-mid)",marginBottom:10,fontWeight:500}}>How are you feeling right now?</div>
+          <div style={{display:"flex",gap:8,justifyContent:"space-between"}}>
+            {moods.map((m, i) => (
+              <button key={i} onClick={() => {
+                setMood(i);
+                const labels = ["really low","anxious","okay","pretty good","great"];
+                setMessages(msgs => [...msgs, {from:"user",text:`I'm feeling ${labels[i]} today.`},{from:"ai",text:i < 2 ? `I'm really glad you're here. Feeling ${labels[i]} can be really heavy — you don't have to carry that alone. Would you like to talk about what's on your mind?` : i === 2 ? `Being okay is a perfectly valid place to be. Sometimes "okay" is exactly enough. Is there something specific you'd like to explore or work through today?` : `That's wonderful to hear. Even on good days, it's valuable to check in with yourself. What would feel most supportive for you right now?`}]);
+              }} style={{flex:1,fontSize:22,padding:"10px 0",background:"var(--cream-3)",border:"none",borderRadius:12,cursor:"pointer",transition:"transform 0.15s"}}>{m}</button>
+            ))}
+          </div>
+        </div>
+      )}
+
+      <div ref={scrollRef} style={{flex:1,overflowY:"auto",padding:"8px 24px",display:"flex",flexDirection:"column",gap:10,scrollbarWidth:"none"}}>
+        {messages.map((msg, i) => (
+          <div key={i} style={{display:"flex",justifyContent:msg.from==="user"?"flex-end":"flex-start",alignItems:"flex-end",gap:8}}>
+            {msg.from==="ai" && (
+              <div style={{width:28,height:28,borderRadius:"50%",background:"linear-gradient(135deg,oklch(56% 0.09 155),oklch(42% 0.08 170))",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0,marginBottom:2}}>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="3.5"/></svg>
+              </div>
+            )}
+            <div style={{
+              maxWidth:"76%",padding:"11px 15px",borderRadius:msg.from==="user"?"18px 18px 4px 18px":"18px 18px 18px 4px",
+              background:msg.from==="user"?"var(--sage)":"var(--cream-2)",
+              color:msg.from==="user"?"white":"var(--text-dark)",
+              fontSize:14,lineHeight:1.55,fontFamily:"'DM Sans',sans-serif"
+            }}>{msg.text}</div>
+          </div>
+        ))}
+        {loading && (
+          <div style={{display:"flex",alignItems:"flex-end",gap:8}}>
+            <div style={{width:28,height:28,borderRadius:"50%",background:"linear-gradient(135deg,oklch(56% 0.09 155),oklch(42% 0.08 170))",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="3.5"/></svg>
+            </div>
+            <div style={{background:"var(--cream-2)",borderRadius:"18px 18px 18px 4px",padding:"12px 16px",display:"flex",gap:5,alignItems:"center"}}>
+              {[0,1,2].map(d => <div key={d} style={{width:6,height:6,borderRadius:"50%",background:"var(--text-light)",animation:`dotBounce 1.2s ease-in-out infinite`,animationDelay:`${d*0.2}s`}}></div>)}
+            </div>
+          </div>
+        )}
+      </div>
+
+      <style>{`@keyframes dotBounce{0%,80%,100%{transform:translateY(0)}40%{transform:translateY(-6px)}}`}</style>
+
+      <div style={{padding:"10px 16px 10px",borderTop:"1px solid var(--border)",display:"flex",gap:10,alignItems:"center",background:"var(--cream)"}}>
+        <input
+          value={input}
+          onChange={e => setInput(e.target.value)}
+          onKeyDown={e => e.key === "Enter" && sendMessage()}
+          placeholder="Share what's on your mind…"
+          style={{flex:1,background:"var(--cream-2)",border:"none",borderRadius:50,padding:"12px 18px",fontFamily:"'DM Sans',sans-serif",fontSize:14,color:"var(--text-dark)",outline:"none"}}
+        />
+        <button onClick={sendMessage} disabled={loading || !input.trim()} style={{width:42,height:42,borderRadius:"50%",background:input.trim()?"var(--sage)":"var(--cream-3)",border:"none",cursor:input.trim()?"pointer":"default",display:"flex",alignItems:"center",justifyContent:"center",transition:"background 0.2s",flexShrink:0}}>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={input.trim()?"white":"var(--text-light)"} strokeWidth="2" strokeLinecap="round"><path d="M22 2L11 13M22 2L15 22l-4-9-9-4 20-7z"/></svg>
+        </button>
+      </div>
+    </div>
+  );
+}
+
+function CommunityScreen({ navigate }) {
+  const [likedPosts, setLikedPosts] = useState({});
+  const [activeTag, setActiveTag] = useState("All");
+  const tags = ["All", "Anxiety", "Meditation", "Growth", "Sleep", "Grief"];
+  const toggleLike = (id) => setLikedPosts(p => ({...p, [id]: !p[id]}));
+  return (
+    <div className="screen-enter">
+      <div className="page-header">
+        <div className="page-back" onClick={() => navigate("home")}>{Icons.back()} Home</div>
+        <div className="page-title">Community</div>
+        <div className="page-subtitle">You're not alone in this journey</div>
+      </div>
+
+      <div className="community-search">
+        {Icons.search()}
+        <input placeholder="Search conversations…" />
+      </div>
+
+      <div className="community-tags">
+        {tags.map(t => (
+          <div key={t} className={"tag " + (activeTag === t ? "active" : "inactive")} onClick={() => setActiveTag(t)}>{t}</div>
+        ))}
+      </div>
+
+      <div className="community-posts">
+        {posts.map(p => (
+          <div className="post-card" key={p.id}>
+            <div className="post-header">
+              <div className="post-avatar" style={{background: p.color}}>{p.author[0]}</div>
+              <div className="post-meta">
+                <div className="p-name">{p.author}</div>
+                <div className="p-time">{p.time}</div>
+              </div>
+              <div className="post-tag" style={{background: p.tagColor, color: p.tagText}}>{p.tag}</div>
+            </div>
+            <div className="post-body">{p.text}</div>
+            <div className="post-actions">
+              <div className={"post-action" + (likedPosts[p.id] ? " liked" : "")} onClick={() => toggleLike(p.id)}>
+                {Icons.heart(likedPosts[p.id])}
+                {p.likes + (likedPosts[p.id] ? 1 : 0)}
+              </div>
+              <div className="post-action">{Icons.chat()} {p.comments}</div>
+              <div className="post-action">{Icons.share()} Share</div>
+            </div>
+          </div>
+        ))}
+      </div>
+      <div style={{height: 16, flexShrink: 0}}></div>
+
+      <div style={{padding: "0 24px 8px"}}>
+        <button style={{width:"100%",padding:"14px",background:"var(--sage)",color:"white",border:"none",borderRadius:16,fontFamily:"'DM Sans',sans-serif",fontSize:14,fontWeight:600,cursor:"pointer",letterSpacing:0.3}}>
+          + Share Your Story
+        </button>
+      </div>
+      <div className="spacer"></div>
+    </div>
+  );
+}
+
+function QuotesScreen({ navigate }) {
+  const [current, setCurrent] = useState(0);
+  const [saved, setSaved] = useState({});
+  const q = quotes[current];
+  return (
+    <div className="screen-enter">
+      <div className="page-header">
+        <div className="page-back" onClick={() => navigate("home")}>{Icons.back()} Home</div>
+        <div className="page-title">Daily Quotes</div>
+        <div className="page-subtitle">Words that ground and inspire</div>
+      </div>
+
+      <div className="quotes-main-card">
+        <div className="quotes-deco">"</div>
+        <div className="quote-main-text">"{q.text}"</div>
+        <div className="quote-main-author">— {q.author}</div>
+      </div>
+
+      <div style={{display:"flex",gap:6,justifyContent:"center",padding:"14px 0 0"}}>
+        {quotes.map((_, i) => (
+          <div key={i} onClick={() => setCurrent(i)} style={{
+            width: i === current ? 20 : 6, height: 6,
+            borderRadius: 3, background: i === current ? "var(--sage)" : "var(--border)",
+            cursor:"pointer", transition:"all 0.25s"
+          }}/>
+        ))}
+      </div>
+
+      <div className="quote-actions">
+        <button className="quote-action-btn secondary" onClick={() => setCurrent((current + quotes.length - 1) % quotes.length)}>
+          {Icons.arrow("left")} Prev
+        </button>
+        <button className="quote-action-btn primary" onClick={() => setSaved(s => ({...s, [current]: !s[current]}))}>
+          {Icons.heart(saved[current])} {saved[current] ? "Saved" : "Save"}
+        </button>
+        <button className="quote-action-btn secondary" onClick={() => setCurrent((current + 1) % quotes.length)}>
+          Next {Icons.arrow()}
+        </button>
+      </div>
+
+      <div className="section-header">
+        <div className="section-title">More Reflections</div>
+      </div>
+
+      <div className="quotes-list">
+        {quotes.filter((_, i) => i !== current).map((q, i) => (
+          <div className="quote-list-item" key={i} onClick={() => setCurrent(quotes.indexOf(q))}>
+            <div className="quote-list-bar" style={{background: q.color}}></div>
+            <div>
+              <div className="quote-list-text">"{q.text.slice(0, 60)}…"</div>
+              <div className="quote-list-author">— {q.author}</div>
+            </div>
+          </div>
+        ))}
+      </div>
+      <div className="spacer"></div>
+    </div>
+  );
+}
+
+function VideosScreen({ navigate }) {
+  return (
+    <div className="screen-enter">
+      <div className="page-header">
+        <div className="page-back" onClick={() => navigate("home")}>{Icons.back()} Home</div>
+        <div className="page-title">Calm Videos</div>
+        <div className="page-subtitle">Soothing content for your mind</div>
+      </div>
+
+      <div className="featured-video">
+        <div className="video-placeholder">
+          <div className="video-overlay-label">Featured · Today</div>
+          <div className="video-overlay-title">Ocean Wave Breathing</div>
+          <div className="video-play-btn">{Icons.play("oklch(35% 0.08 220)", 18)}</div>
+        </div>
+        <div className="video-duration">8 min</div>
+      </div>
+
+      <div className="section-header">
+        <div className="section-title">Browse Sessions</div>
+        <div className="section-link">All videos</div>
+      </div>
+
+      <div className="video-grid">
+        {videos.map(v => (
+          <div className="video-thumb" key={v.id}>
+            <div className="video-thumb-bg" style={{background: v.bg}}>
+              <div className="video-thumb-play">{Icons.play("oklch(30% 0.06 60)", 16)}</div>
+            </div>
+            <div className="video-thumb-info">
+              <div className="video-thumb-title">{v.title}</div>
+              <div className="video-thumb-meta">{v.duration} · {v.category}</div>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      <div className="section-header">
+        <div className="section-title">Sleep Collection</div>
+      </div>
+      <div style={{margin:"0 24px",background:"linear-gradient(135deg, oklch(22% 0.04 240), oklch(18% 0.03 270))",borderRadius:20,padding:"20px 20px",display:"flex",alignItems:"center",gap:14}}>
+        <div style={{flex:1}}>
+          <div style={{fontSize:11,letterSpacing:2,textTransform:"uppercase",color:"oklch(70% 0.04 240)",fontWeight:500,marginBottom:6}}>New Series</div>
+          <div style={{fontFamily:"'Cormorant Garamond',serif",fontSize:20,color:"white",fontWeight:400,marginBottom:4}}>Deep Sleep Journey</div>
+          <div style={{fontSize:12,color:"oklch(65% 0.04 240)"}}>7 nights · 15–20 min each</div>
+        </div>
+        <div style={{width:44,height:44,borderRadius:"50%",background:"white/10%",display:"flex",alignItems:"center",justifyContent:"center"}}>
+          {Icons.play("white", 18)}
+        </div>
+      </div>
+      <div className="spacer"></div>
+    </div>
+  );
+}
+
+function MeditationScreen({ navigate }) {
+  const [breathing, setBreathing] = useState(false);
+  const [phase, setPhase] = useState("Breathe in…");
+  const timerRef = useRef(null);
+
+  const startBreath = () => {
+    setBreathing(true);
+    const phases = ["Breathe in…", "Hold…", "Breathe out…", "Hold…"];
+    let i = 0;
+    setPhase(phases[0]);
+    timerRef.current = setInterval(() => {
+      i = (i + 1) % phases.length;
+      setPhase(phases[i]);
+    }, 2500);
+  };
+  const stopBreath = () => {
+    setBreathing(false);
+    clearInterval(timerRef.current);
+    setPhase("Breathe in…");
+  };
+
+  return (
+    <div className="screen-enter">
+      <div className="page-header">
+        <div className="page-back" onClick={() => navigate("home")}>{Icons.back()} Home</div>
+        <div className="page-title">Meditations</div>
+        <div className="page-subtitle">Find stillness within</div>
+      </div>
+
+      <div className="breathe-exercise">
+        <div className="breathe-ring-outer" style={{animationPlayState: breathing ? "running" : "paused"}}>
+          <div className="breathe-ring-inner" style={{animationPlayState: breathing ? "running" : "paused"}}>
+            <div className="breathe-center" style={{animationPlayState: breathing ? "running" : "paused"}}>
+              {Icons.leaf()}
+            </div>
+          </div>
+        </div>
+        <div className="breathe-instruction">{phase}</div>
+        <div className="breathe-timer">{breathing ? "Box breathing · 4-4-4-4" : "Tap to begin"}</div>
+        <button className="breathe-start-btn" onClick={breathing ? stopBreath : startBreath}>
+          {breathing ? "⏸ Pause" : "▶ Start Breathing"}
+        </button>
+      </div>
+
+      <div className="section-header">
+        <div className="section-title">Guided Sessions</div>
+        <div className="section-link">See all</div>
+      </div>
+
+      <div className="meditation-list">
+        {meditations.map(m => (
+          <div className="meditation-item" key={m.id}>
+            <div className="med-icon" style={{background: m.iconBg}}>
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke={m.iconColor} strokeWidth="1.8">
+                <circle cx="12" cy="12" r="9"/>
+                <circle cx="12" cy="12" r="4"/>
+                <circle cx="12" cy="12" r="1.5" fill={m.iconColor} stroke="none"/>
+              </svg>
+            </div>
+            <div className="med-info">
+              <div className="med-title">{m.title}</div>
+              <div className="med-meta">{m.meta}</div>
+              <div className="med-tags">
+                {m.tags.map(tag => (
+                  <div key={tag} className="med-tag" style={{background:"var(--cream-3)",color:"var(--text-mid)"}}>{tag}</div>
+                ))}
+              </div>
+            </div>
+            <div className="med-play" style={{background:"var(--cream-3)"}}>
+              {Icons.play("var(--text-mid)", 16)}
+            </div>
+          </div>
+        ))}
+      </div>
+      <div className="spacer"></div>
+    </div>
+  );
+}
+
+/* ── NAV ── */
+const navItems = [
+  { id: "home", label: "Home", icon: Icons.home },
+  { id: "therapist", label: "Therapist", icon: Icons.therapist },
+  { id: "community", label: "Community", icon: Icons.community },
+  { id: "videos", label: "Videos", icon: Icons.video },
+  { id: "meditation", label: "Meditate", icon: Icons.meditation },
+];
+
+/* ── APP ── */
+function App() {
+  const [screen, setScreen] = useState("home");
+
+  const screens = {
+    home: <HomeScreen navigate={setScreen}/>,
+    therapist: <TherapistScreen navigate={setScreen}/>,
+    community: <CommunityScreen navigate={setScreen}/>,
+    quotes: <QuotesScreen navigate={setScreen}/>,
+    videos: <VideosScreen navigate={setScreen}/>,
+    meditation: <MeditationScreen navigate={setScreen}/>,
+  };
+
+  return (
+    <div className="app-shell">
+      <div className="status-bar">
+        <div className="status-time">9:41</div>
+        <div className="status-icons">
+          <svg viewBox="0 0 24 24"><path d="M1 1l22 22M16.72 11.06A10.94 10.94 0 0119 12.55M5 12.55a10.94 10.94 0 015.17-2.39M10.71 5.05A16 16 0 0122.56 9M1.42 9a15.91 15.91 0 014.7-2.88M8.53 16.11a6 6 0 016.95 0M12 20h.01" fill="none" stroke="var(--text-dark)" strokeWidth="1.8" strokeLinecap="round"/></svg>
+          <svg viewBox="0 0 24 24"><rect x="1" y="6" width="18" height="12" rx="2" fill="none" stroke="var(--text-dark)" strokeWidth="1.8"/><path d="M23 13v-2" stroke="var(--text-dark)" strokeWidth="2" strokeLinecap="round"/><rect x="3" y="8" width="12" height="8" rx="1" fill="var(--text-dark)"/></svg>
+        </div>
+      </div>
+
+      <div className="screen-scroll" key={screen}>
+        {screens[screen]}
+      </div>
+
+      <div className="bottom-nav">
+        {navItems.map(item => {
+          const active = screen === item.id;
+          return (
+            <div key={item.id} className={"nav-item" + (active ? " active" : "")} onClick={() => setScreen(item.id)}>
+              <div className="nav-icon">{item.icon(active)}</div>
+              <div className="nav-label">{item.label}</div>
+              {active && <div className="nav-dot"></div>}
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById("root")).render(<App/>);
+</script>
+</body>
+</html>
