@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Community — Zen Alpha</title>
+<link rel="stylesheet" href="zen-styles.css">
+<style>
+.community-layout { display: grid; grid-template-columns: 1fr 320px; gap: 28px; align-items: start; }
+.posts-col { display: flex; flex-direction: column; gap: 16px; }
+.right-col { display: flex; flex-direction: column; gap: 18px; position: sticky; top: 88px; }
+
+.toolbar { display: flex; align-items: center; gap: 12px; margin-bottom: 24px; flex-wrap: wrap; }
+.tags-row { display: flex; gap: 8px; flex-wrap: wrap; flex: 1; }
+
+.post-card { background: var(--cream-2); border-radius: 22px; padding: 24px; transition: box-shadow 0.2s; }
+.post-card:hover { box-shadow: 0 6px 28px oklch(20% 0.03 60 / 0.08); }
+.post-header { display: flex; align-items: center; gap: 12px; margin-bottom: 14px; }
+.post-avatar { width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 16px; color: white; flex-shrink: 0; }
+.post-meta .p-name { font-size: 14px; font-weight: 600; color: var(--text-dark); }
+.post-meta .p-time { font-size: 12px; color: var(--text-light); margin-top: 1px; }
+.post-tag-pill { margin-left: auto; padding: 4px 12px; border-radius: 50px; font-size: 11px; font-weight: 700; letter-spacing: 0.3px; }
+.post-body { font-size: 15px; color: var(--text-dark); line-height: 1.65; margin-bottom: 16px; }
+.post-actions { display: flex; gap: 20px; align-items: center; padding-top: 14px; border-top: 1px solid var(--border); }
+.post-action { display: flex; align-items: center; gap: 6px; font-size: 13px; color: var(--text-light); cursor: pointer; font-weight: 500; transition: color 0.15s; background: none; border: none; font-family: 'DM Sans', sans-serif; padding: 0; }
+.post-action:hover { color: var(--text-mid); }
+.post-action.liked { color: var(--rose); }
+
+.compose-card { background: linear-gradient(135deg, var(--sage-light), oklch(92% 0.04 155)); border-radius: 20px; padding: 20px; }
+.compose-input { width: 100%; background: white; border: none; border-radius: 12px; padding: 14px 16px; font-family: 'DM Sans', sans-serif; font-size: 14px; color: var(--text-dark); outline: none; resize: none; min-height: 80px; }
+.compose-input::placeholder { color: var(--text-light); }
+.compose-footer { display: flex; align-items: center; justify-content: space-between; margin-top: 10px; }
+.compose-tags-select { display: flex; gap: 6px; flex-wrap: wrap; }
+.compose-tag { padding: 4px 10px; border-radius: 50px; font-size: 11px; font-weight: 600; cursor: pointer; border: 1.5px solid transparent; }
+.compose-tag.selected { border-color: var(--sage); background: var(--sage); color: white; }
+.compose-tag:not(.selected) { background: white; color: var(--text-mid); }
+
+.members-card { background: var(--cream-2); border-radius: 20px; padding: 20px; }
+.members-card h4 { font-size: 13px; font-weight: 700; color: var(--text-dark); margin-bottom: 14px; }
+.member-row { display: flex; align-items: center; gap: 10px; padding: 8px 0; }
+.member-row + .member-row { border-top: 1px solid var(--border); }
+.m-avatar { width: 34px; height: 34px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 13px; color: white; flex-shrink: 0; }
+.m-name { font-size: 13px; font-weight: 600; color: var(--text-dark); }
+.m-role { font-size: 11px; color: var(--text-light); }
+.m-badge { margin-left: auto; padding: 3px 8px; border-radius: 50px; font-size: 10px; font-weight: 700; }
+
+.guidelines-card { background: var(--terra-light); border-radius: 20px; padding: 20px; }
+.guidelines-card h4 { font-size: 13px; font-weight: 700; color: var(--text-dark); margin-bottom: 12px; display: flex; align-items: center; gap: 6px; }
+.guideline { display: flex; align-items: flex-start; gap: 8px; margin-bottom: 8px; font-size: 13px; color: var(--text-mid); line-height: 1.5; }
+.guideline-dot { width: 5px; height: 5px; border-radius: 50%; background: var(--terra); flex-shrink: 0; margin-top: 6px; }
+</style>
+</head>
+<body>
+<div class="main">
+  <div class="page-topbar">
+    <div>
+      <div class="topbar-title">Community</div>
+    </div>
+    <div class="topbar-right">
+      <div class="search-bar" style="width:220px">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--text-light)" stroke-width="1.8"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.35-4.35" stroke-linecap="round"/></svg>
+        <input placeholder="Search posts…" oninput="filterPosts(this.value)" id="search-input">
+      </div>
+    </div>
+  </div>
+
+  <div class="page-content">
+    <div class="toolbar">
+      <div class="tags-row" id="tags-row">
+        <div class="tag tag-active" onclick="setTag('All',this)">All</div>
+        <div class="tag tag-inactive" onclick="setTag('Anxiety',this)">Anxiety</div>
+        <div class="tag tag-inactive" onclick="setTag('Meditation',this)">Meditation</div>
+        <div class="tag tag-inactive" onclick="setTag('Growth',this)">Growth</div>
+        <div class="tag tag-inactive" onclick="setTag('Sleep',this)">Sleep</div>
+        <div class="tag tag-inactive" onclick="setTag('Grief',this)">Grief</div>
+        <div class="tag tag-inactive" onclick="setTag('Relationships',this)">Relationships</div>
+      </div>
+    </div>
+
+    <div class="community-layout">
+      <div class="posts-col" id="posts-col"></div>
+
+      <div class="right-col">
+        <!-- Compose -->
+        <div class="compose-card">
+          <div style="font-size:14px;font-weight:600;color:var(--text-dark);margin-bottom:12px;display:flex;align-items:center;gap:7px">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--sage)" stroke-width="2" stroke-linecap="round"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+            Share your story
+          </div>
+          <textarea class="compose-input" id="compose-text" placeholder="What's on your mind? Your words may help someone else…"></textarea>
+          <div class="compose-footer">
+            <div class="compose-tags-select" id="compose-tags">
+              <div class="compose-tag selected" onclick="selectComposeTag(this)">Anxiety</div>
+              <div class="compose-tag" onclick="selectComposeTag(this)">Growth</div>
+              <div class="compose-tag" onclick="selectComposeTag(this)">Sleep</div>
+              <div class="compose-tag" onclick="selectComposeTag(this)">Meditation</div>
+            </div>
+            <button class="btn btn-sage btn-sm" onclick="postStory()" style="flex-shrink:0">Post</button>
+          </div>
+        </div>
+
+        <!-- Active members -->
+        <div class="members-card">
+          <h4>Active members</h4>
+          <div class="member-row">
+            <div class="m-avatar" style="background:oklch(56% 0.09 155)">M</div>
+            <div><div class="m-name">Maya R.</div><div class="m-role">Guide · 342 posts</div></div>
+            <div class="m-badge" style="background:var(--sage-light);color:var(--sage-dark)">Guide</div>
+          </div>
+          <div class="member-row">
+            <div class="m-avatar" style="background:oklch(62% 0.10 42)">T</div>
+            <div><div class="m-name">Tomás B.</div><div class="m-role">Member · 89 posts</div></div>
+            <div class="m-badge" style="background:var(--terra-light);color:var(--terra)">★ Top</div>
+          </div>
+          <div class="member-row">
+            <div class="m-avatar" style="background:oklch(55% 0.08 290)">J</div>
+            <div><div class="m-name">James O.</div><div class="m-role">Member · 23 posts</div></div>
+          </div>
+        </div>
+
+        <!-- Guidelines -->
+        <div class="guidelines-card">
+          <h4>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--terra)" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+            Community guidelines
+          </h4>
+          <div class="guideline"><div class="guideline-dot"></div>Be kind and supportive — no judgment here.</div>
+          <div class="guideline"><div class="guideline-dot"></div>Respect everyone's personal journey.</div>
+          <div class="guideline"><div class="guideline-dot"></div>Share experiences, not diagnoses.</div>
+          <div class="guideline"><div class="guideline-dot"></div>If in crisis, please reach out to a professional.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="zen-nav.js"></script>
+<script>
+initNav('community');
+
+const BASE_POSTS = [
+  { id:1, author:"Maya R.", color:"oklch(56% 0.09 155)", tag:"Anxiety", tagBg:"var(--sage-light)", tagColor:"var(--sage-dark)", text:"After 3 months of daily sessions, I finally spoke up in a meeting without freezing. Small victory, but it means everything. 💙", likes:42, comments:9, time:"2h ago" },
+  { id:2, author:"Tomás B.", color:"oklch(62% 0.10 42)", tag:"Meditation", tagBg:"var(--terra-light)", tagColor:"oklch(50% 0.10 42)", text:"The 10-minute morning breathing exercise has completely changed how I start my days. Anyone else found that consistency beats duration?", likes:31, comments:14, time:"5h ago" },
+  { id:3, author:"Nadia K.", color:"oklch(70% 0.07 10)", tag:"Growth", tagBg:"var(--rose-light)", tagColor:"oklch(55% 0.08 10)", text:"Reminder: healing isn't linear. Some weeks are harder than others and that's completely okay. You're still moving forward. 🌱", likes:88, comments:22, time:"1d ago" },
+  { id:4, author:"Priya M.", color:"oklch(55% 0.08 290)", tag:"Sleep", tagBg:"oklch(90% 0.04 290)", tagColor:"oklch(45% 0.07 290)", text:"The deep sleep meditation series has been a game-changer. Finally sleeping through the night after months of insomnia.", likes:56, comments:17, time:"2d ago" },
+  { id:5, author:"James O.", color:"oklch(50% 0.09 200)", tag:"Anxiety", tagBg:"var(--sage-light)", tagColor:"var(--sage-dark)", text:"Started journaling two weeks ago. Writing things down really does help — it takes the weight out of your head and puts it somewhere safe.", likes:34, comments:8, time:"3d ago" },
+];
+
+let allPosts = JSON.parse(localStorage.getItem('za_posts') || 'null') || [...BASE_POSTS];
+let liked = JSON.parse(localStorage.getItem('za_liked') || '{}');
+let activeTag = 'All';
+let searchQ = '';
+
+function savePosts() { localStorage.setItem('za_posts', JSON.stringify(allPosts)); localStorage.setItem('za_liked', JSON.stringify(liked)); }
+
+function renderPosts() {
+  const col = document.getElementById('posts-col');
+  let posts = allPosts;
+  if (activeTag !== 'All') posts = posts.filter(p => p.tag === activeTag);
+  if (searchQ) posts = posts.filter(p => p.text.toLowerCase().includes(searchQ.toLowerCase()) || p.author.toLowerCase().includes(searchQ.toLowerCase()));
+  col.innerHTML = posts.length ? posts.map(p => `
+    <div class="post-card fade-up">
+      <div class="post-header">
+        <div class="post-avatar" style="background:${p.color}">${p.author[0]}</div>
+        <div class="post-meta">
+          <div class="p-name">${p.author}</div>
+          <div class="p-time">${p.time}</div>
+        </div>
+        <div class="post-tag-pill" style="background:${p.tagBg};color:${p.tagColor}">${p.tag}</div>
+      </div>
+      <div class="post-body">${p.text}</div>
+      <div class="post-actions">
+        <button class="post-action ${liked[p.id] ? 'liked' : ''}" onclick="toggleLike(${p.id})">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="${liked[p.id] ? 'var(--rose)' : 'none'}" stroke="${liked[p.id] ? 'var(--rose)' : 'currentColor'}" stroke-width="1.8"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l8.84 8.84 8.84-8.84a5.5 5.5 0 000-7.78z"/></svg>
+          ${p.likes + (liked[p.id] ? 1 : 0)}
+        </button>
+        <button class="post-action">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+          ${p.comments}
+        </button>
+        <button class="post-action" style="margin-left:auto">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.59 13.51l6.83 3.98M15.41 6.51L8.59 10.49"/></svg>
+          Share
+        </button>
+      </div>
+    </div>
+  `).join('') : `<div style="padding:40px;text-align:center;color:var(--text-light);font-size:14px">No posts found.</div>`;
+}
+
+function toggleLike(id) {
+  liked[id] = !liked[id];
+  savePosts(); renderPosts();
+}
+
+function setTag(tag, el) {
+  activeTag = tag;
+  document.querySelectorAll('#tags-row .tag').forEach(t => { t.className = 'tag tag-inactive'; });
+  el.className = 'tag tag-active';
+  renderPosts();
+}
+
+function filterPosts(q) { searchQ = q; renderPosts(); }
+
+function selectComposeTag(el) {
+  document.querySelectorAll('#compose-tags .compose-tag').forEach(t => t.classList.remove('selected'));
+  el.classList.add('selected');
+}
+
+function postStory() {
+  const text = document.getElementById('compose-text').value.trim();
+  if (!text) return;
+  const tag = document.querySelector('#compose-tags .compose-tag.selected')?.textContent || 'Growth';
+  const tagColors = { Anxiety:['var(--sage-light)','var(--sage-dark)'], Growth:['var(--terra-light)','oklch(50% 0.10 42)'], Sleep:['oklch(90% 0.04 290)','oklch(45% 0.07 290)'], Meditation:['var(--rose-light)','oklch(55% 0.08 10)'] };
+  const [tagBg, tagColor] = tagColors[tag] || tagColors.Growth;
+  const newPost = { id: Date.now(), author:"Alex (you)", color:"linear-gradient(135deg,var(--terra),var(--rose))", tag, tagBg, tagColor, text, likes:0, comments:0, time:"Just now" };
+  allPosts.unshift(newPost);
+  document.getElementById('compose-text').value = '';
+  savePosts(); renderPosts();
+}
+
+renderPosts();
+</script>
+</body>
+</html>
