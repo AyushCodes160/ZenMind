@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Home — Zen Alpha</title>
+<link rel="stylesheet" href="zen-styles.css">
+<style>
+.stats-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 32px; }
+.stat-card { background: var(--cream-2); border-radius: 18px; padding: 22px 24px; }
+.stat-num { font-family: 'Cormorant Garamond', serif; font-size: 40px; font-weight: 500; color: var(--text-dark); line-height: 1; }
+.stat-label { font-size: 14px; color: var(--text-light); font-weight: 600; margin-top: 6px; }
+.stat-sub { font-size: 13px; color: var(--text-mid); margin-top: 3px; }
+@media (max-width: 900px) {
+  .stats-row { grid-template-columns: repeat(2, 1fr); }
+}
+
+.hero-card {
+  background: linear-gradient(135deg, oklch(28% 0.07 160), oklch(38% 0.09 155));
+  border-radius: 24px; padding: 36px 40px;
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 32px; position: relative; overflow: hidden;
+}
+.hero-orb {
+  position: absolute; border-radius: 50%; pointer-events: none;
+  animation: orbFloat 6s ease-in-out infinite;
+}
+.hero-card-text .eyebrow { font-size: 12px; letter-spacing: 2px; text-transform: uppercase; color: oklch(72% 0.06 155); font-weight: 600; margin-bottom: 12px; }
+.hero-card-text h2 { font-family: 'Cormorant Garamond', serif; font-size: 36px; font-weight: 400; color: white; margin-bottom: 10px; }
+.hero-card-text p { font-size: 16px; color: oklch(75% 0.04 155); margin-bottom: 22px; line-height: 1.6; }
+.hero-actions { display: flex; gap: 10px; }
+.hero-btn-primary { background: white; color: oklch(28% 0.07 160); border: none; border-radius: 50px; padding: 14px 28px; font-family: 'DM Sans', sans-serif; font-size: 16px; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 8px; transition: transform 0.15s; min-height: 48px; }
+.hero-btn-primary:hover { transform: scale(1.03); }
+.hero-btn-secondary { background: oklch(50% 0.07 155 / 0.3); color: white; border: 1px solid oklch(55% 0.06 155 / 0.4); border-radius: 50px; padding: 14px 24px; font-family: 'DM Sans', sans-serif; font-size: 16px; font-weight: 500; cursor: pointer; text-decoration: none; display: flex; align-items: center; gap: 8px; transition: background 0.2s; min-height: 48px; }
+.hero-btn-secondary:hover { background: oklch(50% 0.07 155 / 0.5); }
+
+.feature-cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 32px; }
+@media (max-width: 900px) { .feature-cards { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 500px) { .feature-cards { grid-template-columns: 1fr; } }
+.feat { border-radius: 20px; padding: 24px; cursor: pointer; transition: transform 0.15s, box-shadow 0.15s; text-decoration: none; display: block; }
+.feat:hover { transform: translateY(-3px); box-shadow: 0 10px 36px oklch(20% 0.03 60 / 0.1); }
+.feat:focus-visible { outline: 3px solid var(--sage); outline-offset: 3px; }
+.feat-icon-wrap { width: 48px; height: 48px; border-radius: 14px; display: flex; align-items: center; justify-content: center; margin-bottom: 16px; }
+.feat-name { font-size: 17px; font-weight: 600; color: var(--text-dark); margin-bottom: 6px; }
+.feat-desc { font-size: 14px; color: var(--text-mid); line-height: 1.6; }
+.feat-arrow { display: flex; align-items: center; gap: 5px; font-size: 14px; font-weight: 600; margin-top: 14px; }
+
+.two-col { display: grid; grid-template-columns: 1.4fr 1fr; gap: 20px; }
+@media (max-width: 900px) { .two-col { grid-template-columns: 1fr; } }
+.quote-preview { background: linear-gradient(160deg, oklch(24% 0.05 165), oklch(34% 0.08 155)); border-radius: 20px; padding: 28px; position: relative; overflow: hidden; cursor: pointer; text-decoration: none; display: block; transition: transform 0.15s; }
+.quote-preview:hover { transform: translateY(-2px); }
+.quote-deco { position: absolute; font-family: 'Cormorant Garamond', serif; font-size: 140px; font-style: italic; color: white; opacity: 0.05; top: -20px; left: 10px; line-height: 1; pointer-events: none; }
+.quote-preview-label { font-size: 11px; letter-spacing: 2px; text-transform: uppercase; color: oklch(65% 0.05 155); font-weight: 600; margin-bottom: 14px; }
+.quote-preview-text { font-family: 'Cormorant Garamond', serif; font-size: 22px; font-style: italic; color: white; line-height: 1.55; position: relative; z-index: 1; }
+.quote-preview-author { font-size: 14px; color: oklch(65% 0.04 155); margin-top: 14px; font-weight: 500; position: relative; z-index: 1; }
+
+.recent-journal { background: var(--cream-2); border-radius: 20px; padding: 24px; text-decoration: none; display: block; transition: transform 0.15s; }
+.recent-journal:hover { transform: translateY(-2px); }
+.rj-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
+.rj-title { font-size: 16px; font-weight: 600; color: var(--text-dark); display: flex; align-items: center; gap: 8px; }
+.rj-link { font-size: 14px; color: var(--sage); font-weight: 600; }
+.rj-entry { padding: 16px; background: white; border-radius: 14px; }
+.rj-date { font-size: 12px; color: var(--text-light); letter-spacing: 1px; text-transform: uppercase; font-weight: 600; margin-bottom: 8px; }
+.rj-text { font-family: 'Cormorant Garamond', serif; font-size: 18px; color: var(--text-dark); line-height: 1.65; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+.rj-cta { margin-top: 14px; width: 100%; padding: 14px; background: var(--cream-3); border: none; border-radius: 12px; font-family: 'DM Sans', sans-serif; font-size: 15px; font-weight: 600; color: var(--text-mid); cursor: pointer; transition: background 0.2s; min-height: 48px; }
+.rj-cta:hover { background: var(--sage-light); color: var(--sage-dark); }
+
+.greeting-time { font-size: 14px; color: var(--text-light); }
+</style>
+</head>
+<body>
+<div class="main">
+  <div class="page-topbar">
+    <div style="display:flex;align-items:center;gap:14px;">
+      <button class="topbar-menu-btn" onclick="toggleSidebar()" aria-label="Open menu">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+      </button>
+      <div>
+        <div class="topbar-title" id="greeting-title">Good morning, Alex ✦</div>
+        <div class="greeting-time" id="greeting-time"></div>
+      </div>
+    </div>
+    <div class="topbar-right">
+      <div class="topbar-streak" id="streak-display">🔥 0-day streak</div>
+    </div>
+  </div>
+
+  <div class="page-content">
+    <!-- Stats -->
+    <div class="stats-row fade-up">
+      <div class="stat-card">
+        <div class="stat-num" id="stat-streak">0</div>
+        <div class="stat-label">Day Streak 🔥</div>
+        <div class="stat-sub">Keep it going</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-num" id="stat-sessions">0</div>
+        <div class="stat-label">Sessions this week</div>
+        <div class="stat-sub">Meditations & chats</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-num" id="stat-entries">0</div>
+        <div class="stat-label">Journal entries</div>
+        <div class="stat-sub">Thoughts captured</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-num">24/7</div>
+        <div class="stat-label">Zen AI available</div>
+        <div class="stat-sub">Always here for you</div>
+      </div>
+    </div>
+
+    <!-- Hero breathe card -->
+    <div class="hero-card fade-up fade-up-1">
+      <div class="hero-orb" style="width:300px;height:300px;background:radial-gradient(circle,oklch(50% 0.08 155 / 0.25),transparent 70%);right:-80px;top:-80px;"></div>
+      <div class="hero-orb" style="width:200px;height:200px;background:radial-gradient(circle,oklch(60% 0.07 42 / 0.15),transparent 70%);left:30%;bottom:-60px;animation-delay:2s;"></div>
+      <div class="hero-card-text" style="position:relative;z-index:1">
+        <div class="eyebrow">Today's Practice</div>
+        <h2>Start with a breath</h2>
+        <p>A few minutes of calm can change your entire day. Begin wherever you are.</p>
+        <div class="hero-actions">
+          <button class="hero-btn-primary" onclick="location.href='meditation.html'">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="oklch(28% 0.07 160)"><path d="M8 5.14v14l11-7-11-7z"/></svg>
+            Begin Session
+          </button>
+          <a href="zen-ai.html" class="hero-btn-secondary">Talk to Zen AI →</a>
+        </div>
+      </div>
+      <div style="position:relative;z-index:1;flex-shrink:0">
+        <div id="breathe-orb" style="width:110px;height:110px;border-radius:50%;border:2px solid oklch(60% 0.07 155 / 0.4);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:transform 0.3s;" onclick="location.href='meditation.html'">
+          <div style="width:76px;height:76px;border-radius:50%;border:2px solid oklch(60% 0.07 155 / 0.5);display:flex;align-items:center;justify-content:center;">
+            <div style="width:48px;height:48px;border-radius:50%;background:oklch(56% 0.09 155 / 0.4);display:flex;align-items:center;justify-content:center;">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.8" stroke-linecap="round"><path d="M17 8C8 10 5.9 16.17 3.82 19.39c1.54.8 3.29 1.07 5 .78C12.7 19.47 17 14.95 17 8z"/><path d="M3 19l4-4"/></svg>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Feature cards -->
+    <div style="margin-bottom:16px" class="fade-up fade-up-2">
+      <div class="section-label">Explore</div>
+    </div>
+    <div class="feature-cards fade-up fade-up-2">
+      <a href="zen-ai.html" class="feat" style="background:var(--sage-light)">
+        <div class="feat-icon-wrap" style="background:oklch(56% 0.09 155 / 0.2)">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--sage)" stroke-width="1.8" stroke-linecap="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+        </div>
+        <div class="feat-name">Talk to Zen AI</div>
+        <div class="feat-desc">Your always-available wellness companion. Share how you're feeling.</div>
+        <div class="feat-arrow" style="color:var(--sage-dark)">Chat now <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg></div>
+      </a>
+      <a href="community.html" class="feat" style="background:var(--terra-light)">
+        <div class="feat-icon-wrap" style="background:oklch(62% 0.10 42 / 0.2)">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--terra)" stroke-width="1.8" stroke-linecap="round"><circle cx="9" cy="7" r="4"/><path d="M3 21v-2a4 4 0 014-4h4a4 4 0 014 4v2"/><path d="M16 3.13a4 4 0 010 7.75M21 21v-2a4 4 0 00-3-3.85"/></svg>
+        </div>
+        <div class="feat-name">Community</div>
+        <div class="feat-desc">Connect with people who understand. Share, support, grow together.</div>
+        <div class="feat-arrow" style="color:var(--terra)">Explore <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg></div>
+      </a>
+      <a href="meditation.html" class="feat" style="background:oklch(92% 0.04 155)">
+        <div class="feat-icon-wrap" style="background:oklch(56% 0.09 155 / 0.15)">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--sage)" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4"/><circle cx="12" cy="12" r="1.5" fill="var(--sage)" stroke="none"/></svg>
+        </div>
+        <div class="feat-name">Guided Meditations</div>
+        <div class="feat-desc">Breathing exercises, body scans, and sleep prep for every level.</div>
+        <div class="feat-arrow" style="color:var(--sage-dark)">Begin <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg></div>
+      </a>
+      <a href="videos.html" class="feat" style="background:var(--rose-light)">
+        <div class="feat-icon-wrap" style="background:oklch(70% 0.07 10 / 0.2)">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--rose)" stroke-width="1.8" stroke-linecap="round"><rect x="2" y="5" width="15" height="14" rx="3"/><path d="M17 9l5-3v12l-5-3V9z"/></svg>
+        </div>
+        <div class="feat-name">Calm Videos</div>
+        <div class="feat-desc">Short soothing videos for relaxation, focus, and restful sleep.</div>
+        <div class="feat-arrow" style="color:var(--rose)">Watch <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg></div>
+      </a>
+      <a href="quotes.html" class="feat" style="background:var(--cream-3)">
+        <div class="feat-icon-wrap" style="background:oklch(62% 0.10 42 / 0.15)">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--terra)" stroke-width="1.8" stroke-linecap="round"><path d="M3 21c3 0 7-1 7-8V5c0-1.25-.757-2.017-2-2H4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2 1 0 1 0 1 1v1c0 1-1 2-2 2s-1 .008-1 1.031V20c0 1 0 1 1 1zM15 21c3 0 7-1 7-8V5c0-1.25-.757-2.017-2-2h-4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2h.75c0 2.25.25 4-2.75 4v3c0 1 0 1 1 1z"/></svg>
+        </div>
+        <div class="feat-name">Daily Quotes</div>
+        <div class="feat-desc">A moment of wisdom curated every day to ground and inspire.</div>
+        <div class="feat-arrow" style="color:var(--terra)">Read <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg></div>
+      </a>
+      <a href="journal.html" class="feat" style="background:var(--cream-2)">
+        <div class="feat-icon-wrap" style="background:oklch(50% 0.08 280 / 0.15)">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="oklch(50% 0.08 280)" stroke-width="1.8" stroke-linecap="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6M16 13H8M16 17H8M10 9H8"/></svg>
+        </div>
+        <div class="feat-name">My Journal</div>
+        <div class="feat-desc">Private space for your thoughts, reflections, and daily feelings.</div>
+        <div class="feat-arrow" style="color:oklch(50% 0.08 280)">Write <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg></div>
+      </a>
+    </div>
+
+    <!-- Bottom row -->
+    <div class="two-col fade-up fade-up-3">
+      <a href="quotes.html" class="quote-preview">
+        <div class="quote-deco">"</div>
+        <div class="quote-preview-label">Today's Reflection</div>
+        <div class="quote-preview-text" id="home-quote">"The present moment is the only moment available to us, and it is the door to all moments."</div>
+        <div class="quote-preview-author" id="home-quote-author">— Thich Nhat Hanh</div>
+      </a>
+      <div class="recent-journal">
+        <div class="rj-header">
+          <div class="rj-title">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--terra)" stroke-width="1.8" stroke-linecap="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6"/></svg>
+            My Journal
+          </div>
+          <a href="journal.html" class="rj-link">All entries →</a>
+        </div>
+        <div class="rj-entry" id="rj-entry">
+          <div class="rj-date" id="rj-date">Yesterday</div>
+          <div class="rj-text" id="rj-text">Felt a bit anxious before the presentation but the breathing exercise really helped. Proud of how I handled it.</div>
+        </div>
+        <button class="rj-cta" onclick="location.href='journal.html'">+ Write today's entry</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="sidebar-overlay" id="sidebar-overlay" onclick="closeSidebar()"></div>
+<script src="zen-nav.js"></script>
+<script>
+initNav('home');
+
+function toggleSidebar() {
+  const sidebar = document.querySelector('.sidebar');
+  const overlay = document.getElementById('sidebar-overlay');
+  const isOpen = sidebar.classList.toggle('mobile-open');
+  overlay.classList.toggle('visible', isOpen);
+  document.body.style.overflow = isOpen ? 'hidden' : '';
+}
+function closeSidebar() {
+  document.querySelector('.sidebar').classList.remove('mobile-open');
+  document.getElementById('sidebar-overlay').classList.remove('visible');
+  document.body.style.overflow = '';
+}
+// Close sidebar when a nav link is tapped on mobile
+document.addEventListener('click', function(e) {
+  const link = e.target.closest('.nav-link');
+  if (link && window.innerWidth <= 900) closeSidebar();
+});
+
+// Greeting
+const h = new Date().getHours();
+const greet = h < 12 ? 'Good morning' : h < 17 ? 'Good afternoon' : 'Good evening';
+document.getElementById('greeting-title').textContent = `${greet}, Alex ✦`;
+const days = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+const now = new Date();
+document.getElementById('greeting-time').textContent = `${days[now.getDay()]}, ${months[now.getMonth()]} ${now.getDate()}`;
+
+// Stats
+const streak = parseInt(localStorage.getItem('za_streak') || '1');
+const sessions = parseInt(localStorage.getItem('za_sessions') || '3');
+const entries = JSON.parse(localStorage.getItem('za_journal') || '[]').length || 2;
+document.getElementById('stat-streak').textContent = streak;
+document.getElementById('stat-sessions').textContent = sessions;
+document.getElementById('stat-entries').textContent = entries;
+document.getElementById('streak-display').textContent = `🔥 ${streak}-day streak`;
+
+// Latest journal entry
+const journal = JSON.parse(localStorage.getItem('za_journal') || '[]');
+if (journal.length > 0) {
+  const latest = journal[0];
+  document.getElementById('rj-date').textContent = latest.date;
+  document.getElementById('rj-text').textContent = latest.text;
+}
+
+// Breathe orb animation
+const orb = document.getElementById('breathe-orb');
+let growing = true;
+setInterval(() => {
+  orb.style.transform = growing ? 'scale(1.12)' : 'scale(1)';
+  growing = !growing;
+}, 3000);
+</script>
+</body>
+</html>
