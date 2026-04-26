@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Meditations — Zen Alpha</title>
+<link rel="stylesheet" href="zen-styles.css">
+<style>
+.med-layout { display: grid; grid-template-columns: 380px 1fr; gap: 28px; align-items: start; }
+
+/* Breathing widget */
+.breathe-widget {
+  background: linear-gradient(145deg, oklch(90% 0.05 42), oklch(94% 0.04 55));
+  border-radius: 28px; padding: 36px 28px;
+  display: flex; flex-direction: column; align-items: center;
+  text-align: center; position: sticky; top: 88px;
+}
+.bw-title { font-family:'Cormorant Garamond',serif; font-size:22px; font-weight:500; color:var(--text-dark); margin-bottom:6px; }
+.bw-subtitle { font-size:13px; color:var(--text-mid); margin-bottom:32px; }
+
+.breathe-rings { position:relative; width:180px; height:180px; margin-bottom:28px; }
+.ring { position:absolute; border-radius:50%; border:2px solid; display:flex; align-items:center; justify-content:center; left:50%; top:50%; transform:translate(-50%,-50%); }
+.ring-outer { width:180px; height:180px; border-color:oklch(62% 0.10 42 / 0.2); }
+.ring-mid   { width:136px; height:136px; border-color:oklch(62% 0.10 42 / 0.35); }
+.ring-inner { width:94px;  height:94px;  background:oklch(62% 0.10 42 / 0.12); border-color:oklch(62% 0.10 42 / 0.5); }
+.ring-core  { width:60px;  height:60px;  background:var(--terra); border:none; }
+
+.bw-phase { font-family:'Cormorant Garamond',serif; font-size:22px; font-style:italic; color:var(--text-dark); margin-bottom:6px; min-height:32px; }
+.bw-progress { display:flex; gap:6px; justify-content:center; margin-bottom:8px; }
+.bw-prog-dot { width:8px; height:8px; border-radius:50%; transition:all 0.4s; }
+.bw-timer { font-size:12px; color:var(--text-light); letter-spacing:1px; margin-bottom:24px; }
+.bw-start { padding:13px 36px; background:var(--terra); color:white; border:none; border-radius:50px; font-family:'DM Sans',sans-serif; font-size:15px; font-weight:600; cursor:pointer; transition:all 0.2s; }
+.bw-start:hover { background:oklch(55% 0.10 42); transform:translateY(-1px); }
+
+.bw-pattern-select { display:flex; gap:8px; flex-wrap:wrap; justify-content:center; margin-top:20px; }
+.pattern-chip { padding:6px 13px; border-radius:50px; font-size:12px; font-weight:600; cursor:pointer; border:1.5px solid transparent; background:white; color:var(--text-mid); transition:all 0.15s; }
+.pattern-chip.active { background:var(--terra); color:white; border-color:var(--terra); }
+.pattern-chip:not(.active):hover { border-color:var(--terra); color:var(--terra); }
+.bw-sessions-done { font-size:12px; color:var(--terra); font-weight:600; margin-top:16px; }
+
+/* Sessions list */
+.sessions-col {}
+.sessions-grid { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+.session-card { background:var(--cream-2); border-radius:20px; overflow:hidden; cursor:pointer; transition:transform 0.15s, box-shadow 0.15s; }
+.session-card:hover { transform:translateY(-3px); box-shadow:0 10px 32px oklch(20% 0.03 60 / 0.1); }
+.session-card.active { outline:2px solid var(--sage); outline-offset:2px; }
+.sc-header { padding:20px 20px 14px; }
+.sc-icon { width:46px; height:46px; border-radius:14px; display:flex; align-items:center; justify-content:center; margin-bottom:14px; }
+.sc-title { font-size:15px; font-weight:700; color:var(--text-dark); margin-bottom:4px; }
+.sc-meta { font-size:12px; color:var(--text-mid); }
+.sc-tags { display:flex; gap:5px; margin-top:8px; }
+.sc-tag { font-size:10px; font-weight:700; padding:3px 9px; border-radius:50px; background:var(--cream-3); color:var(--text-mid); }
+.sc-footer { padding:12px 20px; border-top:1px solid var(--border); display:flex; align-items:center; justify-content:space-between; }
+.sc-play { width:34px; height:34px; border-radius:50%; display:flex; align-items:center; justify-content:center; background:var(--cream-3); transition:background 0.15s; }
+.session-card:hover .sc-play { background:var(--sage-light); }
+
+/* Active session overlay */
+.active-session-banner { background:var(--sage); border-radius:18px; padding:16px 20px; margin-bottom:20px; display:flex; align-items:center; gap:14px; }
+.asb-pulse { width:36px; height:36px; border-radius:50%; background:white/20%; border:2px solid rgba(255,255,255,0.4); display:flex; align-items:center; justify-content:center; animation:pulse 2s ease-in-out infinite; }
+.asb-title { font-size:14px; font-weight:600; color:white; }
+.asb-meta { font-size:12px; color:rgba(255,255,255,0.75); }
+.asb-stop { margin-left:auto; padding:8px 16px; background:rgba(255,255,255,0.2); border:1px solid rgba(255,255,255,0.3); border-radius:50px; color:white; font-family:'DM Sans',sans-serif; font-size:12px; font-weight:600; cursor:pointer; }
+</style>
+</head>
+<body>
+<div class="main">
+  <div class="page-topbar">
+    <div class="topbar-title">Meditations</div>
+    <div class="topbar-right">
+      <span style="font-size:13px;color:var(--text-light)" id="sessions-count">0 sessions completed</span>
+    </div>
+  </div>
+  <div class="page-content">
+    <div id="active-banner" style="display:none"></div>
+    <div class="med-layout">
+      <!-- Breathing widget -->
+      <div class="breathe-widget">
+        <div class="bw-title">Box Breathing</div>
+        <div class="bw-subtitle">A calming 4-count practice</div>
+        <div class="breathe-rings" id="breathe-rings">
+          <div class="ring ring-outer" id="ring-outer"></div>
+          <div class="ring ring-mid" id="ring-mid"></div>
+          <div class="ring ring-inner" id="ring-inner"></div>
+          <div class="ring ring-core" id="ring-core">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.8" stroke-linecap="round"><path d="M17 8C8 10 5.9 16.17 3.82 19.39c1.54.8 3.29 1.07 5 .78C12.7 19.47 17 14.95 17 8z"/><path d="M3 19l4-4"/></svg>
+          </div>
+        </div>
+        <div class="bw-phase" id="bw-phase">Ready to begin</div>
+        <div class="bw-progress" id="bw-progress"></div>
+        <div class="bw-timer" id="bw-timer">Tap to start · Box breathing</div>
+        <button class="bw-start" id="bw-btn" onclick="toggleBreath()">▶ Start Breathing</button>
+        <div class="bw-pattern-select" id="pattern-select">
+          <div class="pattern-chip active" onclick="setPattern('box',this)">Box 4-4-4-4</div>
+          <div class="pattern-chip" onclick="setPattern('478',this)">4-7-8 Sleep</div>
+          <div class="pattern-chip" onclick="setPattern('calm',this)">2-4 Calm</div>
+        </div>
+        <div class="bw-sessions-done" id="bw-done-count"></div>
+      </div>
+
+      <!-- Sessions -->
+      <div class="sessions-col">
+        <div style="margin-bottom:20px">
+          <div class="section-label">Guided Sessions</div>
+        </div>
+        <div class="sessions-grid" id="sessions-grid"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="zen-nav.js"></script>
+<script>
+initNav('meditation');
+
+const SESSIONS = [
+  { id:0, title:"Morning Clarity", meta:"7 min · Beginner", tags:["Breath","Focus"], iconBg:"var(--sage-light)", iconColor:"var(--sage)", desc:"Start your day with intention" },
+  { id:1, title:"Anxiety Relief", meta:"10 min · All levels", tags:["Calm","Grounding"], iconBg:"var(--rose-light)", iconColor:"var(--rose)", desc:"Ground yourself in the present" },
+  { id:2, title:"Deep Sleep Prep", meta:"15 min · Beginner", tags:["Sleep","Relax"], iconBg:"oklch(90% 0.04 220)", iconColor:"oklch(50% 0.09 220)", desc:"Wind down for restful sleep" },
+  { id:3, title:"Self-Compassion", meta:"12 min · All levels", tags:["Healing","Love"], iconBg:"var(--terra-light)", iconColor:"var(--terra)", desc:"Be gentle with yourself" },
+  { id:4, title:"Body Scan", meta:"20 min · Intermediate", tags:["Awareness","Relax"], iconBg:"oklch(90% 0.04 280)", iconColor:"oklch(50% 0.08 280)", desc:"Release tension from head to toe" },
+  { id:5, title:"Loving Kindness", meta:"10 min · Beginner", tags:["Compassion","Heart"], iconBg:"var(--rose-light)", iconColor:"var(--rose)", desc:"Cultivate warmth and love" },
+];
+
+const PATTERNS = {
+  box:  { phases:["Breathe in…","Hold…","Breathe out…","Hold…"], durations:[4000,4000,4000,4000], name:"Box breathing · 4-4-4-4" },
+  '478':{ phases:["Breathe in…","Hold…","Breathe out…"], durations:[4000,7000,8000], name:"4-7-8 sleep breath" },
+  calm: { phases:["Breathe in…","Breathe out…"], durations:[2000,4000], name:"2-4 calming breath" },
+};
+
+let breathing = false, breathInterval = null, phaseIndex = 0, countdown = 0, countInterval = null;
+let currentPattern = PATTERNS.box;
+let activeSession = null;
+let breathSessions = parseInt(localStorage.getItem('za_breath_sessions')||'0');
+let totalSessions = parseInt(localStorage.getItem('za_sessions')||'0');
+
+document.getElementById('sessions-count').textContent = totalSessions + ' sessions completed';
+if (breathSessions > 0) document.getElementById('bw-done-count').textContent = '🌿 ' + breathSessions + ' sessions completed';
+
+function setPattern(key, el) {
+  if (breathing) return;
+  currentPattern = PATTERNS[key];
+  document.querySelectorAll('.pattern-chip').forEach(c => c.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById('bw-timer').textContent = 'Tap to start · ' + currentPattern.name;
+  renderProgressDots();
+}
+
+function renderProgressDots() {
+  const n = currentPattern.phases.length;
+  document.getElementById('bw-progress').innerHTML = currentPattern.phases.map((_,i) =>
+    `<div class="bw-prog-dot" id="dot-${i}" style="background:${i===phaseIndex?'var(--terra)':'var(--cream-3)'}"></div>`
+  ).join('');
+}
+
+function toggleBreath() {
+  if (breathing) {
+    breathing = false;
+    clearTimeout(breathInterval); clearInterval(countInterval);
+    document.getElementById('bw-btn').textContent = '▶ Start Breathing';
+    document.getElementById('bw-phase').textContent = 'Paused';
+    document.getElementById('bw-timer').textContent = 'Tap to resume · ' + currentPattern.name;
+    stopRingAnim();
+  } else {
+    breathing = true;
+    phaseIndex = 0;
+    document.getElementById('bw-btn').textContent = '⏸ Pause';
+    nextPhase();
+  }
+}
+
+function nextPhase() {
+  if (!breathing) return;
+  const phase = currentPattern.phases[phaseIndex];
+  const dur = currentPattern.durations[phaseIndex];
+  document.getElementById('bw-phase').textContent = phase;
+  renderProgressDots();
+  document.querySelectorAll('.bw-prog-dot').forEach((d,i) => d.style.background = i===phaseIndex?'var(--terra)':'var(--cream-3)');
+  animateRings(phaseIndex, currentPattern.phases.length);
+  let remaining = dur / 1000;
+  document.getElementById('bw-timer').textContent = remaining + 's · ' + currentPattern.name;
+  clearInterval(countInterval);
+  countInterval = setInterval(() => {
+    remaining--;
+    document.getElementById('bw-timer').textContent = Math.max(0, remaining) + 's · ' + currentPattern.name;
+  }, 1000);
+  breathInterval = setTimeout(() => {
+    phaseIndex = (phaseIndex + 1) % currentPattern.phases.length;
+    if (phaseIndex === 0) {
+      breathSessions++;
+      localStorage.setItem('za_breath_sessions', breathSessions);
+      document.getElementById('bw-done-count').textContent = '🌿 ' + breathSessions + ' sessions completed';
+      const s = parseInt(localStorage.getItem('za_sessions')||'0');
+      localStorage.setItem('za_sessions', s+1);
+    }
+    nextPhase();
+  }, dur);
+}
+
+function animateRings(phaseIdx, total) {
+  const rings = ['ring-outer','ring-mid','ring-inner','ring-core'];
+  const isIn = phaseIdx % 2 === 0;
+  const scale = isIn ? 1.12 : 0.9;
+  rings.forEach((id, i) => {
+    const el = document.getElementById(id);
+    setTimeout(() => { el.style.transition = 'transform ' + (currentPattern.durations[phaseIdx]/1000*0.8) + 's ease-in-out'; el.style.transform = 'translate(-50%,-50%) scale(' + (1 + (scale-1)*(1-i*0.2)) + ')'; }, i*60);
+  });
+}
+
+function stopRingAnim() {
+  ['ring-outer','ring-mid','ring-inner','ring-core'].forEach(id => {
+    const el = document.getElementById(id);
+    el.style.transition = 'transform 0.6s ease'; el.style.transform = 'translate(-50%,-50%) scale(1)';
+  });
+}
+
+function startSession(id) {
+  const s = SESSIONS[id];
+  activeSession = s;
+  const banner = document.getElementById('active-banner');
+  banner.style.display = '';
+  banner.innerHTML = `<div class="active-session-banner">
+    <div class="asb-pulse"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4"/><circle cx="12" cy="12" r="1.5" fill="white" stroke="none"/></svg></div>
+    <div><div class="asb-title">Now playing: ${s.title}</div><div class="asb-meta">${s.meta} · ${s.desc}</div></div>
+    <button class="asb-stop" onclick="stopSession()">■ Stop</button>
+  </div>`;
+  const cnt = parseInt(localStorage.getItem('za_sessions')||'0');
+  localStorage.setItem('za_sessions', cnt+1);
+  document.getElementById('sessions-count').textContent = (cnt+1) + ' sessions completed';
+  renderSessions();
+}
+
+function stopSession() { activeSession = null; document.getElementById('active-banner').style.display = 'none'; renderSessions(); }
+
+function renderSessions() {
+  document.getElementById('sessions-grid').innerHTML = SESSIONS.map(s => `
+    <div class="session-card ${activeSession?.id===s.id?'active':''}" onclick="startSession(${s.id})">
+      <div class="sc-header">
+        <div class="sc-icon" style="background:${s.iconBg}">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="${s.iconColor}" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4"/><circle cx="12" cy="12" r="1.5" fill="${s.iconColor}" stroke="none"/></svg>
+        </div>
+        <div class="sc-title">${s.title}</div>
+        <div class="sc-meta">${s.meta}</div>
+        <div class="sc-tags">${s.tags.map(t=>`<div class="sc-tag">${t}</div>`).join('')}</div>
+      </div>
+      <div class="sc-footer">
+        <span style="font-size:12px;color:var(--text-light)">${s.desc}</span>
+        <div class="sc-play" style="background:${activeSession?.id===s.id?'var(--sage-light)':'var(--cream-3)'}">
+          ${activeSession?.id===s.id
+            ? '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="var(--sage)" stroke-width="2.5"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>'
+            : '<svg width="14" height="14" viewBox="0 0 24 24" fill="var(--text-mid)"><path d="M8 5.14v14l11-7-11-7z"/></svg>'}
+        </div>
+      </div>
+    </div>
+  `).join('');
+}
+
+renderProgressDots();
+renderSessions();
+</script>
+</body>
+</html>

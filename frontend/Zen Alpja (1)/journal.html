@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>My Journal — Zen Alpha</title>
+<link rel="stylesheet" href="zen-styles.css">
+<style>
+.journal-layout { display: grid; grid-template-columns: 1fr 340px; gap: 28px; align-items: start; }
+
+/* Write area */
+.write-card { background: white; border-radius: 24px; padding: 32px 36px; border: 1.5px solid var(--border); transition: border-color 0.2s; margin-bottom: 24px; }
+.write-card:focus-within { border-color: var(--sage); }
+.write-date { font-size: 11px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--terra); margin-bottom: 6px; }
+.write-day { font-family: 'Cormorant Garamond', serif; font-size: 28px; font-weight: 500; color: var(--text-dark); margin-bottom: 20px; }
+.write-prompt { font-size: 13px; color: var(--text-light); font-style: italic; margin-bottom: 14px; cursor: pointer; }
+.write-prompt:hover { color: var(--sage); }
+.journal-textarea { width: 100%; min-height: 180px; border: none; outline: none; font-family: 'Cormorant Garamond', serif; font-size: 19px; line-height: 1.75; color: var(--text-dark); resize: none; background: transparent; }
+.journal-textarea::placeholder { color: var(--text-light); }
+.write-footer { display: flex; align-items: center; justify-content: space-between; padding-top: 16px; border-top: 1px solid var(--border); margin-top: 12px; }
+.write-meta { display: flex; align-items: center; gap: 16px; }
+.write-count { font-size: 12px; color: var(--text-light); }
+.mood-picker { display: flex; gap: 6px; }
+.mood-pick-btn { width: 32px; height: 32px; border-radius: 50%; background: var(--cream-2); border: 2px solid transparent; font-size: 16px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.15s; }
+.mood-pick-btn:hover { transform: scale(1.15); }
+.mood-pick-btn.selected { border-color: var(--terra); background: var(--terra-light); }
+.save-entry-btn { padding: 11px 26px; background: var(--terra); color: white; border: none; border-radius: 50px; font-family: 'DM Sans', sans-serif; font-size: 14px; font-weight: 700; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; gap: 7px; }
+.save-entry-btn:hover { background: oklch(55% 0.10 42); transform: translateY(-1px); }
+.save-entry-btn:disabled { background: var(--cream-3); color: var(--text-light); cursor: default; transform: none; }
+.save-entry-btn.saved { background: var(--sage); }
+
+/* Entries list */
+.entries-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+.entries-title { font-size: 15px; font-weight: 700; color: var(--text-dark); display: flex; align-items: center; gap: 7px; }
+.entries-count { font-size: 12px; color: var(--text-light); }
+.entry-card { background: var(--cream-2); border-radius: 20px; padding: 20px 22px; margin-bottom: 12px; cursor: pointer; transition: all 0.15s; border: 2px solid transparent; position: relative; }
+.entry-card:hover { background: white; box-shadow: 0 4px 20px oklch(20% 0.03 60 / 0.07); }
+.entry-card.viewing { border-color: var(--terra); background: white; }
+.entry-header { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+.entry-mood { font-size: 22px; }
+.entry-date-info .e-date { font-size: 12px; font-weight: 700; color: var(--text-dark); }
+.entry-date-info .e-time { font-size: 11px; color: var(--text-light); }
+.entry-word-count { margin-left: auto; font-size: 11px; color: var(--text-light); background: var(--cream-3); padding: 3px 8px; border-radius: 50px; }
+.entry-preview { font-family: 'Cormorant Garamond', serif; font-size: 16px; color: var(--text-dark); line-height: 1.6; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+.entry-delete { position: absolute; top: 12px; right: 14px; width: 28px; height: 28px; border-radius: 50%; background: var(--rose-light); border: none; cursor: pointer; display: none; align-items: center; justify-content: center; }
+.entry-card:hover .entry-delete { display: flex; }
+
+/* Right panel */
+.right-panel { display: flex; flex-direction: column; gap: 18px; position: sticky; top: 88px; }
+
+.prompts-card { background: var(--sage-light); border-radius: 20px; padding: 20px; }
+.prompts-card h4 { font-size: 13px; font-weight: 700; color: var(--text-dark); margin-bottom: 12px; display: flex; align-items: center; gap: 7px; }
+.prompt-item { padding: 10px 12px; background: white; border-radius: 11px; font-size: 13px; color: var(--text-mid); cursor: pointer; margin-bottom: 7px; line-height: 1.4; transition: all 0.15s; }
+.prompt-item:hover { background: var(--sage); color: white; }
+.prompt-item:last-child { margin-bottom: 0; }
+
+.stats-card { background: var(--cream-2); border-radius: 20px; padding: 20px; }
+.stats-card h4 { font-size: 13px; font-weight: 700; color: var(--text-dark); margin-bottom: 14px; }
+.stat-row { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid var(--border); }
+.stat-row:last-child { border-bottom: none; }
+.stat-row-label { font-size: 13px; color: var(--text-mid); }
+.stat-row-val { font-family: 'Cormorant Garamond', serif; font-size: 22px; font-weight: 500; color: var(--text-dark); }
+
+.mood-summary { background: var(--terra-light); border-radius: 20px; padding: 20px; }
+.mood-summary h4 { font-size: 13px; font-weight: 700; color: var(--text-dark); margin-bottom: 12px; }
+.mood-row { display: flex; align-items: center; gap: 8px; margin-bottom: 7px; }
+.mood-row-emoji { font-size: 16px; width: 24px; }
+.mood-bar-bg { flex: 1; height: 8px; background: var(--cream-3); border-radius: 4px; overflow: hidden; }
+.mood-bar-fill { height: 100%; border-radius: 4px; background: var(--terra); }
+.mood-row-count { font-size: 12px; color: var(--text-mid); font-weight: 600; min-width: 16px; text-align: right; }
+</style>
+</head>
+<body>
+<div class="main">
+  <div class="page-topbar">
+    <div class="topbar-title">My Journal</div>
+    <div class="topbar-right">
+      <span style="font-size:13px;color:var(--text-light)" id="total-words-label">0 words written</span>
+      <button class="btn btn-outline btn-sm" onclick="exportJournal()">Export</button>
+    </div>
+  </div>
+  <div class="page-content">
+    <div class="journal-layout">
+      <div>
+        <!-- Write -->
+        <div class="write-card">
+          <div class="write-date" id="write-date"></div>
+          <div class="write-day" id="write-day"></div>
+          <div class="write-prompt" id="write-prompt" onclick="cyclePrompt()">✦ Click for a writing prompt…</div>
+          <textarea class="journal-textarea" id="journal-ta" placeholder="Write freely — this space is just for you…" oninput="onType()"></textarea>
+          <div class="write-footer">
+            <div class="write-meta">
+              <span class="write-count" id="write-count">0 words</span>
+              <div class="mood-picker" id="mood-picker">
+                <button class="mood-pick-btn" data-mood="😔" onclick="pickMood(this)" title="Rough day">😔</button>
+                <button class="mood-pick-btn" data-mood="😟" onclick="pickMood(this)" title="Anxious">😟</button>
+                <button class="mood-pick-btn" data-mood="😐" onclick="pickMood(this)" title="Okay">😐</button>
+                <button class="mood-pick-btn selected" data-mood="🙂" onclick="pickMood(this)" title="Good">🙂</button>
+                <button class="mood-pick-btn" data-mood="😊" onclick="pickMood(this)" title="Great">😊</button>
+              </div>
+            </div>
+            <button class="save-entry-btn" id="save-btn" onclick="saveEntry()" disabled>Save Entry</button>
+          </div>
+        </div>
+
+        <!-- Past entries -->
+        <div class="entries-header">
+          <div class="entries-title">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--terra)" stroke-width="1.8" stroke-linecap="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6"/></svg>
+            Past Entries
+          </div>
+          <span class="entries-count" id="entries-count">0 entries</span>
+        </div>
+        <div id="entries-list"></div>
+      </div>
+
+      <div class="right-panel">
+        <!-- Prompts -->
+        <div class="prompts-card">
+          <h4>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--sage-dark)" stroke-width="2"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+            Writing Prompts
+          </h4>
+          <div class="prompt-item" onclick="usePrompt(this.textContent)">What am I grateful for today?</div>
+          <div class="prompt-item" onclick="usePrompt(this.textContent)">One thing that challenged me and what I learned…</div>
+          <div class="prompt-item" onclick="usePrompt(this.textContent)">How did my body feel today?</div>
+          <div class="prompt-item" onclick="usePrompt(this.textContent)">What would I tell a friend going through what I am?</div>
+          <div class="prompt-item" onclick="usePrompt(this.textContent)">Three small moments of beauty I noticed…</div>
+          <div class="prompt-item" onclick="usePrompt(this.textContent)">What emotion am I most avoiding right now?</div>
+        </div>
+
+        <!-- Stats -->
+        <div class="stats-card">
+          <h4>Your journaling</h4>
+          <div class="stat-row"><div class="stat-row-label">Total entries</div><div class="stat-row-val" id="stat-entries">0</div></div>
+          <div class="stat-row"><div class="stat-row-label">Total words</div><div class="stat-row-val" id="stat-words">0</div></div>
+          <div class="stat-row"><div class="stat-row-label">Longest entry</div><div class="stat-row-val" id="stat-longest">—</div></div>
+          <div class="stat-row"><div class="stat-row-label">This week</div><div class="stat-row-val" id="stat-week">0</div></div>
+        </div>
+
+        <!-- Mood summary -->
+        <div class="mood-summary">
+          <h4>Mood overview</h4>
+          <div id="mood-summary-bars"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="zen-nav.js"></script>
+<script>
+initNav('journal');
+
+const DEFAULT_ENTRIES = [
+  { id:1, date:"Tuesday, Apr 28", rawDate:"2026-04-28", mood:"🙂", text:"Felt a bit anxious before the presentation but the breathing exercise really helped me calm down. I kept reminding myself to just breathe and it worked. Proud of how I handled it today.", words:31 },
+  { id:2, date:"Monday, Apr 27", rawDate:"2026-04-27", mood:"😊", text:"Quiet day. Spent time in the garden and tried the body scan meditation for the first time. It was harder than I expected to stay present, but there were a few moments where I felt completely still. Will try again tomorrow.", words:38 },
+];
+
+let entries = JSON.parse(localStorage.getItem('za_journal') || 'null') || DEFAULT_ENTRIES;
+let selectedMood = '🙂';
+let viewingId = null;
+
+const PROMPTS = [
+  "What am I grateful for today?",
+  "One thing that challenged me and what I learned…",
+  "How did my body feel today?",
+  "What would I tell a friend in my situation?",
+  "Three small moments of beauty I noticed…",
+  "What emotion am I most avoiding right now?",
+];
+let promptIdx = 0;
+
+// Set date
+const now = new Date();
+const days = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+const months = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+document.getElementById('write-date').textContent = months[now.getMonth()] + ' ' + now.getDate() + ', ' + now.getFullYear();
+document.getElementById('write-day').textContent = days[now.getDay()];
+
+function onType() {
+  const val = document.getElementById('journal-ta').value;
+  const words = val.trim() ? val.trim().split(/\s+/).length : 0;
+  document.getElementById('write-count').textContent = words + (words === 1 ? ' word' : ' words');
+  document.getElementById('save-btn').disabled = !val.trim();
+}
+
+function pickMood(btn) {
+  document.querySelectorAll('.mood-pick-btn').forEach(b => b.classList.remove('selected'));
+  btn.classList.add('selected');
+  selectedMood = btn.dataset.mood;
+}
+
+function cyclePrompt() {
+  promptIdx = (promptIdx + 1) % PROMPTS.length;
+  document.getElementById('write-prompt').textContent = '✦ ' + PROMPTS[promptIdx];
+}
+
+function usePrompt(text) {
+  const ta = document.getElementById('journal-ta');
+  ta.value = text + '\n\n';
+  ta.focus();
+  ta.setSelectionRange(ta.value.length, ta.value.length);
+  onType();
+}
+
+function saveEntry() {
+  const text = document.getElementById('journal-ta').value.trim();
+  if (!text) return;
+  const words = text.split(/\s+/).length;
+  const entry = {
+    id: Date.now(),
+    date: days[now.getDay()] + ', ' + months[now.getMonth()].slice(0,3) + ' ' + now.getDate(),
+    rawDate: now.toISOString().slice(0,10),
+    mood: selectedMood,
+    text,
+    words,
+  };
+  entries.unshift(entry);
+  localStorage.setItem('za_journal', JSON.stringify(entries));
+  document.getElementById('journal-ta').value = '';
+  document.getElementById('write-prompt').textContent = '✦ Click for a writing prompt…';
+  const btn = document.getElementById('save-btn');
+  btn.textContent = '✓ Saved!'; btn.classList.add('saved'); btn.disabled = true;
+  setTimeout(() => { btn.textContent = 'Save Entry'; btn.classList.remove('saved'); }, 2000);
+  onType(); renderAll();
+}
+
+function deleteEntry(id, e) {
+  e.stopPropagation();
+  if (!confirm('Delete this entry?')) return;
+  entries = entries.filter(e => e.id !== id);
+  if (viewingId === id) viewingId = null;
+  localStorage.setItem('za_journal', JSON.stringify(entries));
+  renderAll();
+}
+
+function viewEntry(id) {
+  viewingId = viewingId === id ? null : id;
+  renderAll();
+}
+
+function renderAll() {
+  // Entries list
+  const list = document.getElementById('entries-list');
+  if (entries.length === 0) {
+    list.innerHTML = '<div style="padding:32px;text-align:center;color:var(--text-light);font-size:14px">No entries yet. Write your first one above!</div>';
+  } else {
+    list.innerHTML = entries.map(e => `
+      <div class="entry-card ${viewingId===e.id?'viewing':''}" onclick="viewEntry(${e.id})">
+        <button class="entry-delete" onclick="deleteEntry(${e.id},event)" title="Delete">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--rose)" stroke-width="2" stroke-linecap="round"><polyline points="3,6 5,6 21,6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a1 1 0 011-1h4a1 1 0 011 1v2"/></svg>
+        </button>
+        <div class="entry-header">
+          <div class="entry-mood">${e.mood}</div>
+          <div class="entry-date-info">
+            <div class="e-date">${e.date}</div>
+          </div>
+          <div class="entry-word-count">${e.words} words</div>
+        </div>
+        <div class="entry-preview" style="${viewingId===e.id?'-webkit-line-clamp:unset;overflow:visible':''}">${e.text}</div>
+      </div>
+    `).join('');
+  }
+
+  // Stats
+  const totalWords = entries.reduce((s,e) => s + (e.words||0), 0);
+  const longest = entries.length ? Math.max(...entries.map(e => e.words||0)) : 0;
+  const weekAgo = new Date(Date.now()-7*86400000).toISOString().slice(0,10);
+  const thisWeek = entries.filter(e => e.rawDate >= weekAgo).length;
+  document.getElementById('stat-entries').textContent = entries.length;
+  document.getElementById('stat-words').textContent = totalWords.toLocaleString();
+  document.getElementById('stat-longest').textContent = longest ? longest + ' w' : '—';
+  document.getElementById('stat-week').textContent = thisWeek;
+  document.getElementById('entries-count').textContent = entries.length + ' entries';
+  document.getElementById('total-words-label').textContent = totalWords.toLocaleString() + ' words written';
+
+  // Mood bars
+  const moods = ['😊','🙂','😐','😟','😔'];
+  const moodCounts = {};
+  entries.forEach(e => { moodCounts[e.mood] = (moodCounts[e.mood]||0)+1; });
+  const max = Math.max(1, ...Object.values(moodCounts));
+  document.getElementById('mood-summary-bars').innerHTML = moods.map(m => `
+    <div class="mood-row">
+      <div class="mood-row-emoji">${m}</div>
+      <div class="mood-bar-bg"><div class="mood-bar-fill" style="width:${((moodCounts[m]||0)/max*100)}%"></div></div>
+      <div class="mood-row-count">${moodCounts[m]||0}</div>
+    </div>
+  `).join('');
+}
+
+function exportJournal() {
+  if (!entries.length) { alert('No entries to export.'); return; }
+  const text = entries.map(e => `${e.date} ${e.mood}\n${'─'.repeat(40)}\n${e.text}\n`).join('\n');
+  const blob = new Blob(['ZEN ALPHA JOURNAL\n' + '═'.repeat(40) + '\n\n' + text], {type:'text/plain'});
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'zen-journal.txt'; a.click();
+}
+
+renderAll();
+</script>
+</body>
+</html>
