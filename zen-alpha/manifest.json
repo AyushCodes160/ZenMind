@@ -1,0 +1,16 @@
+{
+  "name": "Zen Alpha",
+  "short_name": "Zen Alpha",
+  "description": "Mental Wellness Web App",
+  "start_url": "/index.html",
+  "display": "standalone",
+  "background_color": "#F7F6F3",
+  "theme_color": "#334036",
+  "icons": [
+    {
+      "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/ca/Lotus_flower_icon.svg/512px-Lotus_flower_icon.svg.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
