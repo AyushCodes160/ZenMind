@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Daily Quotes — Zen Alpha</title>
+<link rel="stylesheet" href="zen-styles.css">
+<style>
+.quotes-layout { display: grid; grid-template-columns: 1.1fr 1fr; gap: 28px; align-items: start; }
+.featured-quote {
+  background: linear-gradient(155deg, oklch(24% 0.06 165), oklch(34% 0.09 155));
+  border-radius: 28px; padding: 44px 40px;
+  min-height: 340px; display: flex; flex-direction: column;
+  justify-content: space-between; position: relative; overflow: hidden;
+  cursor: pointer; transition: transform 0.2s;
+}
+.featured-quote:hover { transform: translateY(-2px); }
+.fq-deco { position: absolute; font-family:'Cormorant Garamond',serif; font-size:200px; font-style:italic; color:white; opacity:0.04; top:-30px; left:10px; line-height:1; pointer-events:none; user-select:none; }
+.fq-label { font-size:10px; letter-spacing:2.5px; text-transform:uppercase; color:oklch(65% 0.05 155); font-weight:600; margin-bottom:24px; }
+.fq-text { font-family:'Cormorant Garamond',serif; font-size:clamp(22px,2.5vw,30px); font-style:italic; font-weight:300; color:white; line-height:1.5; position:relative; z-index:1; flex:1; }
+.fq-bottom { position:relative; z-index:1; margin-top:28px; }
+.fq-author { font-size:14px; color:oklch(68% 0.04 155); font-weight:500; margin-bottom:20px; }
+.fq-actions { display:flex; gap:10px; }
+.fq-btn { padding:11px 22px; border-radius:50px; font-family:'DM Sans',sans-serif; font-size:13px; font-weight:600; cursor:pointer; display:flex; align-items:center; gap:7px; transition:all 0.15s; border:none; }
+.fq-btn-primary { background:white; color:oklch(28% 0.06 165); }
+.fq-btn-primary:hover { background:var(--sage-light); }
+.fq-btn-secondary { background:oklch(40% 0.07 155 / 0.35); color:white; border:1px solid oklch(55% 0.06 155 / 0.3); }
+.fq-btn-secondary:hover { background:oklch(45% 0.07 155 / 0.5); }
+
+.nav-dots { display:flex; gap:6px; align-items:center; margin-bottom:20px; }
+.nav-dot { border-radius:50px; cursor:pointer; transition:all 0.25s; border:none; }
+.nav-dot.active { width:20px; height:6px; background:white; }
+.nav-dot.inactive { width:6px; height:6px; background:oklch(45% 0.05 155); }
+
+.quote-nav-arrows { display:flex; gap:10px; }
+.nav-arrow { width:38px; height:38px; border-radius:50%; border:1px solid oklch(45% 0.05 155 / 0.5); background:oklch(35% 0.07 155 / 0.3); color:white; display:flex; align-items:center; justify-content:center; cursor:pointer; transition:all 0.15s; }
+.nav-arrow:hover { background:oklch(45% 0.07 155 / 0.5); }
+
+.right-panel { display:flex; flex-direction:column; gap:18px; position:sticky; top:88px; }
+
+.saved-section { background:var(--cream-2); border-radius:22px; padding:22px; }
+.saved-section h3 { font-size:15px; font-weight:700; color:var(--text-dark); margin-bottom:14px; display:flex; align-items:center; gap:7px; }
+.saved-quote-item { padding:12px 14px; background:white; border-radius:14px; margin-bottom:8px; cursor:pointer; transition:background 0.15s; display:flex; gap:10px; }
+.saved-quote-item:hover { background:var(--sage-light); }
+.saved-quote-item:last-child { margin-bottom:0; }
+.sq-bar { width:3px; border-radius:2px; flex-shrink:0; align-self:stretch; }
+.sq-text { font-family:'Cormorant Garamond',serif; font-size:14px; font-style:italic; color:var(--text-dark); line-height:1.5; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
+.sq-author { font-size:11px; color:var(--text-light); font-weight:500; margin-top:4px; }
+
+.all-quotes { background:var(--cream-2); border-radius:22px; padding:22px; }
+.all-quotes h3 { font-size:15px; font-weight:700; color:var(--text-dark); margin-bottom:14px; }
+.quote-list-item { display:flex; gap:12px; align-items:flex-start; padding:12px 14px; border-radius:14px; cursor:pointer; transition:background 0.15s; }
+.quote-list-item:hover { background:white; }
+.quote-list-item.current { background:var(--sage-light); }
+.qli-bar { width:3px; border-radius:2px; flex-shrink:0; height:auto; align-self:stretch; }
+.qli-text { font-family:'Cormorant Garamond',serif; font-size:14px; font-style:italic; color:var(--text-dark); line-height:1.5; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
+.qli-author { font-size:11px; color:var(--text-light); font-weight:500; margin-top:4px; }
+</style>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#334036">
+</head>
+<body>
+<div class="main">
+  <div class="page-topbar">
+    <div style="display:flex;align-items:center;gap:14px;">
+      <button class="topbar-menu-btn" onclick="toggleSidebar()" aria-label="Open navigation menu"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
+      <div class="topbar-title">Daily Quotes</div>
+    </div>
+    <div class="topbar-right">
+      <span style="font-size:13px;color:var(--text-light)" id="saved-count">0 saved</span>
+    </div>
+  </div>
+  <div class="page-content">
+    <div class="quotes-layout">
+      <!-- Featured -->
+      <div>
+        <div class="featured-quote" id="featured-card">
+          <div class="fq-deco">"</div>
+          <div>
+            <div class="fq-label" id="fq-label">Today's Quote · 1 of 6</div>
+            <div class="fq-text" id="fq-text"></div>
+          </div>
+          <div class="fq-bottom">
+            <div class="fq-author" id="fq-author"></div>
+            <div class="nav-dots" id="nav-dots"></div>
+            <div style="display:flex;align-items:center;justify-content:space-between">
+              <div class="quote-nav-arrows">
+                <button class="nav-arrow" onclick="prev()">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round"><path d="M15 18l-6-6 6-6"/></svg>
+                </button>
+                <button class="nav-arrow" onclick="next()">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round"><path d="M9 18l6-6-6-6"/></svg>
+                </button>
+              </div>
+              <div class="fq-actions">
+                <button class="fq-btn fq-btn-secondary" id="save-btn" onclick="toggleSave()">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.8" id="save-icon"><path d="M19 21l-7-5-7 5V5a2 2 0 012-2h10a2 2 0 012 2z"/></svg>
+                  <span id="save-label">Save</span>
+                </button>
+                <button class="fq-btn fq-btn-primary" onclick="share()">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.59 13.51l6.83 3.98M15.41 6.51L8.59 10.49"/></svg>
+                  Share
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right -->
+      <div class="right-panel">
+        <div class="saved-section">
+          <h3>
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="var(--terra)" stroke="none"><path d="M19 21l-7-5-7 5V5a2 2 0 012-2h10a2 2 0 012 2z"/></svg>
+            Saved Quotes
+          </h3>
+          <div id="saved-list"><div style="font-size:13px;color:var(--text-light);padding:8px">No saved quotes yet. Tap Save on a quote you love.</div></div>
+        </div>
+        <div class="all-quotes">
+          <h3>All Quotes</h3>
+          <div id="all-quotes-list"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="zen-nav.js"></script>
+<script>
+initNav('quotes');
+
+const QUOTES = [
+  { text:"The present moment is the only moment available to us, and it is the door to all moments.", author:"Thich Nhat Hanh", color:"var(--sage)" },
+  { text:"You don't have to control your thoughts; you just have to stop letting them control you.", author:"Dan Millman", color:"var(--terra)" },
+  { text:"Within you, there is a stillness and a sanctuary to which you can retreat at any time.", author:"Hermann Hesse", color:"var(--rose)" },
+  { text:"Breath is the link between mind and body.", author:"Dan Brulé", color:"var(--sage)" },
+  { text:"Peace comes from within. Do not seek it without.", author:"Gautama Buddha", color:"var(--terra)" },
+  { text:"Almost everything will work again if you unplug it for a few minutes — including you.", author:"Anne Lamott", color:"var(--rose)" },
+];
+
+let current = 0;
+let saved = new Set(JSON.parse(localStorage.getItem('za_saved_quotes') || '[]'));
+
+function render() {
+  const q = QUOTES[current];
+  document.getElementById('fq-text').textContent = '"' + q.text + '"';
+  document.getElementById('fq-author').textContent = '— ' + q.author;
+  document.getElementById('fq-label').textContent = `Quote · ${current + 1} of ${QUOTES.length}`;
+  const isSaved = saved.has(current);
+  document.getElementById('save-label').textContent = isSaved ? 'Saved ✓' : 'Save';
+  document.getElementById('save-icon').setAttribute('fill', isSaved ? 'white' : 'none');
+
+  // Dots
+  const dots = document.getElementById('nav-dots');
+  dots.innerHTML = QUOTES.map((_,i) => `<button class="nav-dot ${i===current?'active':'inactive'}" onclick="goTo(${i})"></button>`).join('');
+
+  // All quotes list
+  document.getElementById('all-quotes-list').innerHTML = QUOTES.map((q,i) => `
+    <div class="quote-list-item ${i===current?'current':''}" onclick="goTo(${i})">
+      <div class="qli-bar" style="background:${q.color}"></div>
+      <div>
+        <div class="qli-text">"${q.text}"</div>
+        <div class="qli-author">— ${q.author}</div>
+      </div>
+    </div>
+  `).join('');
+
+  // Saved list
+  const savedArr = [...saved];
+  document.getElementById('saved-list').innerHTML = savedArr.length
+    ? savedArr.map(i => `
+      <div class="saved-quote-item" onclick="goTo(${i})">
+        <div class="sq-bar" style="background:${QUOTES[i].color}"></div>
+        <div>
+          <div class="sq-text">"${QUOTES[i].text}"</div>
+          <div class="sq-author">— ${QUOTES[i].author}</div>
+        </div>
+      </div>
+    `).join('')
+    : '<div style="font-size:13px;color:var(--text-light);padding:8px">No saved quotes yet.</div>';
+
+  document.getElementById('saved-count').textContent = `${saved.size} saved`;
+  localStorage.setItem('za_saved_quotes', JSON.stringify([...saved]));
+}
+
+function goTo(i) { current = i; render(); }
+function prev() { current = (current - 1 + QUOTES.length) % QUOTES.length; render(); }
+function next() { current = (current + 1) % QUOTES.length; render(); }
+function toggleSave() { saved.has(current) ? saved.delete(current) : saved.add(current); render(); }
+function share() {
+  const q = QUOTES[current];
+  if (navigator.clipboard) navigator.clipboard.writeText(`"${q.text}" — ${q.author}`).then(() => alert('Quote copied to clipboard!'));
+}
+
+render();
+</script>
+<div class="sidebar-overlay" id="sidebar-overlay" onclick="closeSidebar()"></div>
+</body>
+</html>
