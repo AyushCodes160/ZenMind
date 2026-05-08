@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Calm Videos — Zen Alpha</title>
+<link rel="stylesheet" href="zen-styles.css">
+<style>
+.videos-layout { display: grid; grid-template-columns: 1fr 300px; gap: 28px; }
+.videos-main {}
+.videos-sidebar { display: flex; flex-direction: column; gap: 16px; position: sticky; top: 88px; }
+
+.category-bar { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 28px; }
+
+.featured-video {
+  border-radius: 24px; overflow: hidden; margin-bottom: 28px;
+  position: relative; height: 280px; cursor: pointer;
+  transition: transform 0.2s;
+}
+.featured-video:hover { transform: translateY(-2px); }
+.fv-bg { width:100%; height:100%; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:12px; }
+.fv-category { font-size:10px; letter-spacing:2px; text-transform:uppercase; color:rgba(255,255,255,0.6); font-weight:600; }
+.fv-title { font-family:'Cormorant Garamond',serif; font-size:30px; color:white; font-weight:400; text-align:center; padding:0 30px; }
+.fv-play { width:64px; height:64px; border-radius:50%; background:rgba(255,255,255,0.2); backdrop-filter:blur(8px); border:2px solid rgba(255,255,255,0.4); display:flex; align-items:center; justify-content:center; transition:all 0.2s; }
+.fv-play:hover { background:rgba(255,255,255,0.35); transform:scale(1.08); }
+.fv-duration { position:absolute; bottom:16px; right:18px; background:rgba(0,0,0,0.45); color:white; font-size:12px; font-weight:600; padding:4px 10px; border-radius:7px; }
+.fv-badge { position:absolute; top:16px; left:18px; background:var(--terra); color:white; font-size:10px; font-weight:700; padding:4px 10px; border-radius:50px; letter-spacing:0.5px; text-transform:uppercase; }
+
+.video-grid { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+.video-card { border-radius:18px; overflow:hidden; cursor:pointer; transition:transform 0.15s, box-shadow 0.15s; }
+.video-card:hover { transform:translateY(-3px); box-shadow:0 10px 32px oklch(20% 0.03 60 / 0.12); }
+.vc-thumb { height:130px; display:flex; align-items:center; justify-content:center; position:relative; }
+.vc-play { width:42px; height:42px; border-radius:50%; background:rgba(255,255,255,0.25); backdrop-filter:blur(6px); border:1.5px solid rgba(255,255,255,0.4); display:flex; align-items:center; justify-content:center; transition:all 0.15s; }
+.video-card:hover .vc-play { background:rgba(255,255,255,0.4); transform:scale(1.08); }
+.vc-dur { position:absolute; bottom:10px; right:10px; background:rgba(0,0,0,0.45); color:white; font-size:10px; font-weight:600; padding:3px 8px; border-radius:6px; }
+.vc-info { background:var(--cream-2); padding:12px 14px; }
+.vc-title { font-size:13px; font-weight:600; color:var(--text-dark); line-height:1.3; margin-bottom:3px; }
+.vc-meta { font-size:11px; color:var(--text-light); }
+
+.now-playing { background:var(--cream-2); border-radius:20px; padding:20px; }
+.now-playing h4 { font-size:13px; font-weight:700; color:var(--text-dark); margin-bottom:14px; display:flex; align-items:center; gap:7px; }
+.np-thumb { border-radius:14px; overflow:hidden; height:140px; margin-bottom:14px; display:flex; align-items:center; justify-content:center; position:relative; cursor:pointer; }
+.np-title { font-family:'Cormorant Garamond',serif; font-size:18px; color:var(--text-dark); margin-bottom:4px; }
+.np-meta { font-size:12px; color:var(--text-light); margin-bottom:14px; }
+.progress-bar { height:4px; background:var(--cream-3); border-radius:2px; margin-bottom:8px; cursor:pointer; }
+.progress-fill { height:100%; background:var(--sage); border-radius:2px; transition:width 0.5s; }
+.np-controls { display:flex; align-items:center; justify-content:center; gap:14px; }
+.np-ctrl-btn { width:36px; height:36px; border-radius:50%; background:var(--cream-3); border:none; display:flex; align-items:center; justify-content:center; cursor:pointer; transition:background 0.15s; }
+.np-ctrl-btn:hover { background:var(--sage-light); }
+.np-play-btn { width:46px; height:46px; background:var(--sage); border-radius:50%; border:none; display:flex; align-items:center; justify-content:center; cursor:pointer; transition:all 0.15s; }
+.np-play-btn:hover { background:var(--sage-dark); transform:scale(1.05); }
+
+.series-card { background:linear-gradient(135deg,oklch(20% 0.04 240),oklch(16% 0.03 260)); border-radius:20px; padding:20px; }
+.series-label { font-size:10px; letter-spacing:2px; text-transform:uppercase; color:oklch(60% 0.04 240); font-weight:600; margin-bottom:8px; }
+.series-title { font-family:'Cormorant Garamond',serif; font-size:20px; color:white; margin-bottom:4px; }
+.series-desc { font-size:12px; color:oklch(55% 0.03 240); margin-bottom:14px; }
+</style>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#334036">
+</head>
+<body>
+<div class="main">
+  <div class="page-topbar">
+    <div style="display:flex;align-items:center;gap:14px;">
+      <button class="topbar-menu-btn" onclick="toggleSidebar()" aria-label="Open navigation menu"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
+      <div class="topbar-title">Calm Videos</div>
+    </div>
+    <div class="topbar-right">
+      <div class="search-bar" style="width:200px">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--text-light)" stroke-width="1.8"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.35-4.35" stroke-linecap="round"/></svg>
+        <input placeholder="Search videos…" oninput="filterVideos(this.value)">
+      </div>
+    </div>
+  </div>
+  <div class="page-content">
+    <div class="category-bar" id="cat-bar">
+      <div class="tag tag-active" onclick="setCategory('All',this)">All</div>
+      <div class="tag tag-inactive" onclick="setCategory('Breathwork',this)">Breathwork</div>
+      <div class="tag tag-inactive" onclick="setCategory('Relaxation',this)">Relaxation</div>
+      <div class="tag tag-inactive" onclick="setCategory('Sleep',this)">Sleep</div>
+      <div class="tag tag-inactive" onclick="setCategory('Focus',this)">Focus</div>
+      <div class="tag tag-inactive" onclick="setCategory('Morning',this)">Morning</div>
+    </div>
+    <div class="videos-layout">
+      <div class="videos-main">
+        <div class="featured-video" id="featured-vid" onclick="playVideo(0)">
+          <div class="fv-bg" id="featured-bg">
+            <div class="fv-category" id="fv-cat">FEATURED · TODAY</div>
+            <div class="fv-title" id="fv-title">Ocean Wave Breathing</div>
+            <div class="fv-play">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="white"><path d="M8 5.14v14l11-7-11-7z"/></svg>
+            </div>
+          </div>
+          <div class="fv-duration" id="fv-dur">8 min</div>
+          <div class="fv-badge">Featured</div>
+        </div>
+        <div style="margin-bottom:18px">
+          <div class="section-label">Browse</div>
+        </div>
+        <div class="video-grid" id="video-grid"></div>
+      </div>
+      <div class="videos-sidebar">
+        <div class="now-playing" id="now-playing-card">
+          <h4>
+            <span id="np-status-dot" style="width:7px;height:7px;border-radius:50%;background:var(--text-light);display:inline-block;"></span>
+            Now Playing
+          </h4>
+          <div class="np-thumb" id="np-thumb" onclick="togglePlay()">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.6)" stroke-width="1.5"><rect x="2" y="5" width="15" height="14" rx="3"/><path d="M17 9l5-3v12l-5-3V9z"/></svg>
+          </div>
+          <div class="np-title" id="np-title">Select a video</div>
+          <div class="np-meta" id="np-meta">Tap any video to start</div>
+          <div class="progress-bar" onclick="seekProgress(event)">
+            <div class="progress-fill" id="progress-fill" style="width:0%"></div>
+          </div>
+          <div style="display:flex;justify-content:space-between;margin-bottom:12px">
+            <span style="font-size:11px;color:var(--text-light)" id="np-elapsed">0:00</span>
+            <span style="font-size:11px;color:var(--text-light)" id="np-total">—</span>
+          </div>
+          <div class="np-controls">
+            <button class="np-ctrl-btn" onclick="prevVideo()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--text-mid)" stroke-width="2" stroke-linecap="round"><path d="M19 20L9 12l10-8v16z"/><line x1="5" y1="4" x2="5" y2="20"/></svg></button>
+            <button class="np-play-btn" id="np-play-btn" onclick="togglePlay()">
+              <svg id="np-play-icon" width="20" height="20" viewBox="0 0 24 24" fill="white"><path d="M8 5.14v14l11-7-11-7z"/></svg>
+            </button>
+            <button class="np-ctrl-btn" onclick="nextVideo()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--text-mid)" stroke-width="2" stroke-linecap="round"><path d="M5 4l10 8-10 8V4z"/><line x1="19" y1="4" x2="19" y2="20"/></svg></button>
+          </div>
+        </div>
+        <div class="series-card">
+          <div class="series-label">New Series</div>
+          <div class="series-title">Deep Sleep Journey</div>
+          <div class="series-desc">7 nights · 15–20 min each. A guided series to help you build a restful sleep ritual.</div>
+          <button class="btn btn-sm" style="background:rgba(255,255,255,0.12);color:white;border:1px solid rgba(255,255,255,0.2);font-size:12px" onclick="alert('Series starting soon!')">Start Series →</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="zen-nav.js"></script>
+<script>
+initNav('videos');
+
+const VIDEOS = [
+  { id:0, title:"Ocean Wave Breathing", duration:"8 min", totalSec:480, category:"Breathwork", bg:"linear-gradient(135deg,oklch(35% 0.08 220),oklch(28% 0.06 240))" },
+  { id:1, title:"Evening Wind Down", duration:"12 min", totalSec:720, category:"Relaxation", bg:"linear-gradient(135deg,oklch(32% 0.07 42),oklch(25% 0.05 55))" },
+  { id:2, title:"Forest Rain Sounds", duration:"30 min", totalSec:1800, category:"Sleep", bg:"linear-gradient(135deg,oklch(30% 0.07 155),oklch(22% 0.05 170))" },
+  { id:3, title:"Body Scan Release", duration:"15 min", totalSec:900, category:"Focus", bg:"linear-gradient(135deg,oklch(38% 0.07 290),oklch(28% 0.05 310))" },
+  { id:4, title:"Sunrise Meditation", duration:"10 min", totalSec:600, category:"Morning", bg:"linear-gradient(135deg,oklch(55% 0.10 55),oklch(45% 0.08 42))" },
+  { id:5, title:"Deep Focus Flow", duration:"25 min", totalSec:1500, category:"Focus", bg:"linear-gradient(135deg,oklch(32% 0.06 200),oklch(25% 0.05 220))" },
+];
+
+let activeCategory = 'All', currentVideo = null, playing = false, elapsed = 0, interval = null, searchQ = '';
+
+function renderGrid() {
+  let vids = VIDEOS;
+  if (activeCategory !== 'All') vids = vids.filter(v => v.category === activeCategory);
+  if (searchQ) vids = vids.filter(v => v.title.toLowerCase().includes(searchQ.toLowerCase()));
+  document.getElementById('video-grid').innerHTML = vids.map(v => `
+    <div class="video-card" onclick="playVideo(${v.id})">
+      <div class="vc-thumb" style="background:${v.bg}">
+        <div class="vc-play"><svg width="16" height="16" viewBox="0 0 24 24" fill="white"><path d="M8 5.14v14l11-7-11-7z"/></svg></div>
+        <div class="vc-dur">${v.duration}</div>
+      </div>
+      <div class="vc-info">
+        <div class="vc-title">${v.title}</div>
+        <div class="vc-meta">${v.duration} · ${v.category}</div>
+      </div>
+    </div>
+  `).join('');
+}
+
+function setCategory(cat, el) {
+  activeCategory = cat;
+  document.querySelectorAll('#cat-bar .tag').forEach(t => t.className = 'tag tag-inactive');
+  el.className = 'tag tag-active';
+  renderGrid();
+}
+
+function filterVideos(q) { searchQ = q; renderGrid(); }
+
+function playVideo(id) {
+  const v = VIDEOS[id];
+  currentVideo = v; elapsed = 0; playing = true;
+  clearInterval(interval);
+  document.getElementById('np-title').textContent = v.title;
+  document.getElementById('np-meta').textContent = v.duration + ' · ' + v.category;
+  document.getElementById('np-thumb').style.background = v.bg;
+  document.getElementById('np-total').textContent = v.duration;
+  document.getElementById('np-status-dot').style.background = 'var(--sage)';
+  updatePlayBtn();
+  interval = setInterval(() => {
+    if (!playing) return;
+    elapsed++;
+    const pct = Math.min((elapsed / v.totalSec) * 100, 100);
+    document.getElementById('progress-fill').style.width = pct + '%';
+    const m = Math.floor(elapsed/60), s = elapsed%60;
+    document.getElementById('np-elapsed').textContent = m+':'+(s<10?'0':'')+s;
+    if (elapsed >= v.totalSec) { clearInterval(interval); playing = false; updatePlayBtn(); }
+  }, 1000);
+  const s = parseInt(localStorage.getItem('za_sessions')||'0');
+  localStorage.setItem('za_sessions', s+1);
+}
+
+function togglePlay() {
+  if (!currentVideo) return;
+  playing = !playing;
+  updatePlayBtn();
+}
+
+function updatePlayBtn() {
+  document.getElementById('np-play-icon').innerHTML = playing
+    ? '<rect x="6" y="4" width="4" height="16" fill="white"/><rect x="14" y="4" width="4" height="16" fill="white"/>'
+    : '<path d="M8 5.14v14l11-7-11-7z"/>';
+}
+
+function prevVideo() { if (currentVideo) playVideo(Math.max(0, currentVideo.id - 1)); }
+function nextVideo() { if (currentVideo) playVideo(Math.min(VIDEOS.length-1, currentVideo.id + 1)); }
+
+function seekProgress(e) {
+  if (!currentVideo) return;
+  const bar = e.currentTarget;
+  const pct = e.offsetX / bar.offsetWidth;
+  elapsed = Math.floor(pct * currentVideo.totalSec);
+}
+
+renderGrid();
+</script>
+<div class="sidebar-overlay" id="sidebar-overlay" onclick="closeSidebar()"></div>
+</body>
+</html>
