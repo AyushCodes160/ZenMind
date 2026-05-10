@@ -81,7 +81,30 @@ app.post('/api/journal-prompt', async (req, res) => {
   }
 });
 
+// --- 24/7 Keep-Alive Script for Render ---
+app.get('/api/keep-alive', (req, res) => {
+  res.status(200).send('Server is alive!');
+});
+
 const PORT = process.env.PORT || 5173;
 app.listen(PORT, () => {
   console.log(`\n✦ Zen Alpha running at http://localhost:${PORT}\n`);
+  
+  // Start keep-alive self-pinging loop only in production
+  if (process.env.NODE_ENV === 'production') {
+    const PING_INTERVAL = 14 * 60 * 1000; // 14 minutes (Render sleeps after 15)
+    // Render automatically provides RENDER_EXTERNAL_URL in production
+    const SERVER_URL = process.env.RENDER_EXTERNAL_URL || `http://localhost:${PORT}`;
+    
+    console.log(`[Keep-Alive] Starting 24/7 ping cycle targeting ${SERVER_URL}/api/keep-alive`);
+    
+    setInterval(async () => {
+      try {
+        const res = await fetch(`${SERVER_URL}/api/keep-alive`);
+        console.log(`[Keep-Alive] Pinged server at ${new Date().toISOString()} - Status: ${res.status}`);
+      } catch (err) {
+        console.error(`[Keep-Alive] Ping failed:`, err.message);
+      }
+    }, PING_INTERVAL);
+  }
 });
