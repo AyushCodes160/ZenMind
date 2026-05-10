@@ -1,6 +1,7 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
 import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+import { identifyUser, trackEvent, resetAnalytics } from './analytics.js';
 
 // Your web app's Firebase configuration
 // REPLACE THESE WITH YOUR ACTUAL FIREBASE CONFIG
@@ -28,7 +29,8 @@ export async function loginWithGoogle() {
     const userRef = doc(db, 'users', user.uid);
     const docSnap = await getDoc(userRef);
     
-    if (!docSnap.exists()) {
+    const isNewUser = !docSnap.exists();
+    if (isNewUser) {
       await setDoc(userRef, {
         name: user.displayName,
         email: user.email,
@@ -36,6 +38,17 @@ export async function loginWithGoogle() {
         createdAt: new Date()
       });
     }
+
+    identifyUser(user.uid, {
+        $name: user.displayName,
+        $email: user.email,
+        user_type: "casual"
+    });
+
+    if (isNewUser) {
+        trackEvent('sign_up', { sign_up_method: 'google', platform: 'web' });
+    }
+
     return user;
   } catch (error) {
     console.error("Error signing in with Google:", error);
@@ -46,6 +59,7 @@ export async function loginWithGoogle() {
 export async function logout() {
   try {
     await signOut(auth);
+    resetAnalytics();
   } catch (error) {
     console.error("Error signing out:", error);
   }

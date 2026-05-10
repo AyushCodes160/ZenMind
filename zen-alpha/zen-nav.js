@@ -87,6 +87,10 @@ function initNav(active) {
   authScript.textContent = `
     import { loginWithGoogle, logout, onAuthStateChanged, auth, db } from './firebase-setup.js';
     import { doc, getDoc, setDoc } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js';
+    import { showConsentBanner, trackPageview } from './analytics.js';
+
+    showConsentBanner();
+    trackPageview();
 
     const authBtn = document.getElementById('auth-btn');
     const avatar = document.getElementById('user-avatar-text');

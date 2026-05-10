@@ -204,6 +204,7 @@ async function sendMessage() {
   const input = document.getElementById('chat-input');
   const text = input.value.trim();
   if (!text || isLoading) return;
+  if (window.zaAnalytics) window.zaAnalytics.trackEvent('chat_message_sent', { is_quick_prompt: false });
   input.value = ''; autoResize(input);
   document.getElementById('send-btn').disabled = true;
   addMessage('user', text);
