@@ -104,8 +104,11 @@
             <span id="np-status-dot" style="width:7px;height:7px;border-radius:50%;background:var(--text-light);display:inline-block;"></span>
             Now Playing
           </h4>
-          <div class="np-thumb" id="np-thumb" onclick="togglePlay()">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.6)" stroke-width="1.5"><rect x="2" y="5" width="15" height="14" rx="3"/><path d="M17 9l5-3v12l-5-3V9z"/></svg>
+          <div class="np-thumb" id="np-thumb">
+            <iframe id="main-video-frame" style="width:100%; height:100%; border-radius:14px; border:none; display:none;" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+            <div id="video-placeholder" style="width:100%; height:100%; display:flex; align-items:center; justify-content:center; background:var(--cream-3); border-radius:14px;">
+              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="rgba(0,0,0,0.2)" stroke-width="1.5"><rect x="2" y="5" width="15" height="14" rx="3"/><path d="M17 9l5-3v12l-5-3V9z"/></svg>
+            </div>
           </div>
           <div class="np-title" id="np-title">Select a video</div>
           <div class="np-meta" id="np-meta">Tap any video to start</div>
@@ -140,12 +143,12 @@
 initNav('videos');
 
 const VIDEOS = [
-  { id:0, title:"Ocean Wave Breathing", duration:"8 min", totalSec:480, category:"Breathwork", bg:"linear-gradient(135deg,oklch(35% 0.08 220),oklch(28% 0.06 240))" },
-  { id:1, title:"Evening Wind Down", duration:"12 min", totalSec:720, category:"Relaxation", bg:"linear-gradient(135deg,oklch(32% 0.07 42),oklch(25% 0.05 55))" },
-  { id:2, title:"Forest Rain Sounds", duration:"30 min", totalSec:1800, category:"Sleep", bg:"linear-gradient(135deg,oklch(30% 0.07 155),oklch(22% 0.05 170))" },
-  { id:3, title:"Body Scan Release", duration:"15 min", totalSec:900, category:"Focus", bg:"linear-gradient(135deg,oklch(38% 0.07 290),oklch(28% 0.05 310))" },
-  { id:4, title:"Sunrise Meditation", duration:"10 min", totalSec:600, category:"Morning", bg:"linear-gradient(135deg,oklch(55% 0.10 55),oklch(45% 0.08 42))" },
-  { id:5, title:"Deep Focus Flow", duration:"25 min", totalSec:1500, category:"Focus", bg:"linear-gradient(135deg,oklch(32% 0.06 200),oklch(25% 0.05 220))" },
+  { id:0, title:"Ocean Wave Breathing", duration:"8 min", category:"Breathwork", ytid: "bn9F19Hi1Lk" },
+  { id:1, title:"Evening Wind Down", duration:"12 min", category:"Relaxation", ytid: "1ZYbU82GVz4" },
+  { id:2, title:"Forest Rain Sounds", duration:"30 min", category:"Sleep", ytid: "mXmD6KjM0To" },
+  { id:3, title:"Body Scan Release", duration:"15 min", category:"Focus", ytid: "6YtAt65y5_M" },
+  { id:4, title:"Sunrise Meditation", duration:"10 min", category:"Morning", ytid: "_tSBeRntq-Y" },
+  { id:5, title:"Deep Focus Flow", duration:"25 min", category:"Focus", ytid: "pAnK1y7qjuE" },
 ];
 
 let activeCategory = 'All', currentVideo = null, playing = false, elapsed = 0, interval = null, searchQ = '';
@@ -156,7 +159,7 @@ function renderGrid() {
   if (searchQ) vids = vids.filter(v => v.title.toLowerCase().includes(searchQ.toLowerCase()));
   document.getElementById('video-grid').innerHTML = vids.map(v => `
     <div class="video-card" onclick="playVideo(${v.id})">
-      <div class="vc-thumb" style="background:${v.bg}">
+      <div class="vc-thumb" style="background:url('https://img.youtube.com/vi/${v.ytid}/mqdefault.jpg') center/cover">
         <div class="vc-play"><svg width="16" height="16" viewBox="0 0 24 24" fill="white"><path d="M8 5.14v14l11-7-11-7z"/></svg></div>
         <div class="vc-dur">${v.duration}</div>
       </div>
@@ -181,27 +184,27 @@ function playVideo(id) {
   const v = VIDEOS[id];
   currentVideo = v; elapsed = 0; playing = true;
   clearInterval(interval);
+  
+  const frame = document.getElementById('main-video-frame');
+  const placeholder = document.getElementById('video-placeholder');
+  
+  frame.src = `https://www.youtube.com/embed/${v.ytid}?autoplay=1`;
+  frame.style.display = 'block';
+  placeholder.style.display = 'none';
+
   document.getElementById('np-title').textContent = v.title;
   document.getElementById('np-meta').textContent = v.duration + ' · ' + v.category;
-  document.getElementById('np-thumb').style.background = v.bg;
+  document.getElementById('np-thumb').style.background = `url('https://img.youtube.com/vi/${v.ytid}/mqdefault.jpg') center/cover`;
   document.getElementById('np-total').textContent = v.duration;
   document.getElementById('np-status-dot').style.background = 'var(--sage)';
   updatePlayBtn();
-  interval = setInterval(() => {
-    if (!playing) return;
-    elapsed++;
-    const pct = Math.min((elapsed / v.totalSec) * 100, 100);
-    document.getElementById('progress-fill').style.width = pct + '%';
-    const m = Math.floor(elapsed/60), s = elapsed%60;
-    document.getElementById('np-elapsed').textContent = m+':'+(s<10?'0':'')+s;
-    if (elapsed >= v.totalSec) { clearInterval(interval); playing = false; updatePlayBtn(); }
-  }, 1000);
+  
   const s = parseInt(localStorage.getItem('za_sessions')||'0');
   localStorage.setItem('za_sessions', s+1);
 }
 
 function togglePlay() {
-  if (!currentVideo) return;
+  // YouTube embed handles play/pause internally, but we can sync the UI
   playing = !playing;
   updatePlayBtn();
 }

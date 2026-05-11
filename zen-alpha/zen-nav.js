@@ -170,7 +170,7 @@ document.addEventListener('click', function(e) {
 function injectLanguageSupport() {
   const script = document.createElement('script');
   script.type = 'text/javascript';
-  script.src = '//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit';
+  script.src = 'https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit';
   document.head.appendChild(script);
 
   const translateDiv = document.createElement('div');
@@ -210,8 +210,9 @@ function injectLanguageSupport() {
             gtSelect.value = val;
             gtSelect.dispatchEvent(new Event('change'));
         } else {
-            // Fallback if the widget hasn't fully loaded
+            // Fallback: Set cookie and use the hash method which is more reliable for local development
             setCookie('googtrans', `/en/${val}`, 30);
+            window.location.hash = `#googtrans(en|${val})`;
             window.location.reload();
         }
       });
@@ -228,6 +229,17 @@ function setCookie(name, value, days, domain) {
     }
     let domainStr = domain ? ("; domain=" + domain) : "";
     document.cookie = name + "=" + (value || "")  + expires + "; path=/" + domainStr;
+}
+
+function getCookie(name) {
+    let nameEQ = name + "=";
+    let ca = document.cookie.split(';');
+    for(let i=0; i < ca.length; i++) {
+        let c = ca[i];
+        while (c.charAt(0)==' ') c = c.substring(1,c.length);
+        if (c.indexOf(nameEQ) == 0) return c.substring(nameEQ.length,c.length);
+    }
+    return null;
 }
 
 injectLanguageSupport();
