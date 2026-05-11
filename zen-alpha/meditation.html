@@ -59,6 +59,8 @@
 .asb-title { font-size:14px; font-weight:600; color:white; }
 .asb-meta { font-size:12px; color:rgba(255,255,255,0.75); }
 .asb-stop { margin-left:auto; padding:8px 16px; background:rgba(255,255,255,0.2); border:1px solid rgba(255,255,255,0.3); border-radius:50px; color:white; font-family:'DM Sans',sans-serif; font-size:12px; font-weight:600; cursor:pointer; }
+.asb-progress-container { width:100%; height:4px; background:rgba(255,255,255,0.2); border-radius:2px; margin-top:8px; overflow:hidden; }
+.asb-progress-fill { height:100%; background:white; width:0%; transition:width 0.5s; }
 </style>
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#334036">
@@ -76,8 +78,8 @@
   </div>
   <div class="page-content">
     <div id="active-banner" style="display:none"></div>
-    <div id="meditation-player-container" style="display:none; margin-bottom:20px; border-radius:18px; overflow:hidden; aspect-ratio:16/9; max-height:240px; background:black;">
-      <iframe id="meditation-iframe" style="width:100%; height:100%; border:none;" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+    <div id="meditation-audio-container">
+      <audio id="session-audio" loop></audio>
     </div>
     <div class="med-layout">
       <!-- Breathing widget -->
@@ -108,7 +110,7 @@
       <!-- Sessions -->
       <div class="sessions-col">
         <div style="margin-bottom:20px">
-          <div class="section-label">Guided Sessions</div>
+          <div class="section-label">Ambient Music</div>
         </div>
         <div class="sessions-grid" id="sessions-grid"></div>
       </div>
@@ -116,17 +118,17 @@
   </div>
 </div>
 
-<script src="zen-nav.js"></script>
+<script src="zen-nav.js?v=2"></script>
 <script>
 initNav('meditation');
 
 const SESSIONS = [
-  { id:0, title:"Morning Clarity", meta:"7 min · Beginner", tags:["Breath","Focus"], iconBg:"var(--sage-light)", iconColor:"var(--sage)", desc:"Start your day with intention", ytid: "ENZZmRE-62Q" },
-  { id:1, title:"Anxiety Relief", meta:"10 min · All levels", tags:["Calm","Grounding"], iconBg:"var(--rose-light)", iconColor:"var(--rose)", desc:"Ground yourself in the present", ytid: "O-6f5wQXSu8" },
-  { id:2, title:"Deep Sleep Prep", meta:"15 min · Beginner", tags:["Sleep","Relax"], iconBg:"oklch(90% 0.04 220)", iconColor:"oklch(50% 0.09 220)", desc:"Wind down for restful sleep", ytid: "2O7K-8G2nwU" },
-  { id:3, title:"Self-Compassion", meta:"12 min · All levels", tags:["Healing","Love"], iconBg:"var(--terra-light)", iconColor:"var(--terra)", desc:"Be gentle with yourself", ytid: "Y8uM8mD5L10" },
-  { id:4, title:"Body Scan", meta:"20 min · Intermediate", tags:["Awareness","Relax"], iconBg:"oklch(90% 0.04 280)", iconColor:"oklch(50% 0.08 280)", desc:"Release tension from head to toe", ytid: "qs_PBe79oJA" },
-  { id:5, title:"Loving Kindness", meta:"10 min · Beginner", tags:["Compassion","Heart"], iconBg:"var(--rose-light)", iconColor:"var(--rose)", desc:"Cultivate warmth and love", ytid: "itZMM5gC6bw" },
+  { id:0, title:"Zen Forest", meta:"30 min · Ambient", tags:["Nature","Calm"], iconBg:"var(--sage-light)", iconColor:"var(--sage)", desc:"Universal sounds of the woodland", url: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3", thumb: "bn9F19Hi1Lk" },
+  { id:1, title:"Celestial Peace", meta:"20 min · Ethereal", tags:["Space","Sleep"], iconBg:"var(--rose-light)", iconColor:"var(--rose)", desc:"Drift into cosmic stillness", url: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3", thumb: "bn9F19Hi1Lk" },
+  { id:2, title:"Deep Focus Piano", meta:"15 min · Minimal", tags:["Focus","Study"], iconBg:"oklch(90% 0.04 220)", iconColor:"oklch(50% 0.09 220)", desc:"Gentle keys for concentration", url: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3", thumb: "L_LUpnjuyP0" },
+  { id:3, title:"Tibetan Bowls", meta:"12 min · Healing", tags:["Vibration","Zen"], iconBg:"var(--terra-light)", iconColor:"var(--terra)", desc:"Ancient resonance for grounding", url: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-4.mp3", thumb: "T_8S5L8B8Y4" },
+  { id:4, title:"Night Garden", meta:"45 min · Gentle", tags:["Rain","Sleep"], iconBg:"oklch(90% 0.04 280)", iconColor:"oklch(50% 0.08 280)", desc:"Soft rain on evening flowers", url: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-8.mp3", thumb: "1ZYbU82GVz4" },
+  { id:5, title:"Ethereal Dreams", meta:"10 min · Floating", tags:["Relax","Dream"], iconBg:"var(--rose-light)", iconColor:"var(--rose)", desc:"Weightless ambient textures", url: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-9.mp3", thumb: "ZToicY62fFw" },
 ];
 
 const PATTERNS = {
@@ -138,8 +140,14 @@ const PATTERNS = {
 let breathing = false, breathInterval = null, phaseIndex = 0, countdown = 0, countInterval = null;
 let currentPattern = PATTERNS.box;
 let activeSession = null;
+let player = null, timerInterval = null;
 let breathSessions = parseInt(localStorage.getItem('za_breath_sessions')||'0');
 let totalSessions = parseInt(localStorage.getItem('za_sessions')||'0');
+
+function parseDuration(d) {
+  const parts = d.split(' ');
+  return parseInt(parts[0]) * 60;
+}
 
 document.getElementById('sessions-count').textContent = totalSessions + ' sessions completed';
 if (breathSessions > 0) document.getElementById('bw-done-count').textContent = '🌿 ' + breathSessions + ' sessions completed';
@@ -227,38 +235,64 @@ function stopRingAnim() {
 function startSession(id) {
   const s = SESSIONS[id];
   activeSession = s;
+  const limit = parseDuration(s.meta);
   
-  const playerContainer = document.getElementById('meditation-player-container');
-  const iframe = document.getElementById('meditation-iframe');
-  
-  playerContainer.style.display = 'block';
-  iframe.src = `https://www.youtube.com/embed/${s.ytid}?autoplay=1`;
+  const audio = document.getElementById('session-audio');
+  audio.src = s.url;
+  audio.play().catch(e => {
+    console.log("Autoplay prevented or link broken, user must click play.");
+  });
 
   const banner = document.getElementById('active-banner');
   banner.style.display = '';
-  banner.innerHTML = `<div class="active-session-banner">
-    <div class="asb-pulse"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4"/><circle cx="12" cy="12" r="1.5" fill="white" stroke="none"/></svg></div>
-    <div><div class="asb-title">Now playing: ${s.title}</div><div class="asb-meta">${s.meta} · ${s.desc}</div></div>
-    <button class="asb-stop" onclick="stopSession()">■ Stop</button>
+  banner.innerHTML = `<div class="active-session-banner" style="flex-wrap:wrap">
+    <div style="display:flex; align-items:center; gap:14px; width:100%">
+      <div class="asb-pulse"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4"/><circle cx="12" cy="12" r="1.5" fill="white" stroke="none"/></svg></div>
+      <div><div class="asb-title">Now playing: ${s.title}</div><div class="asb-meta" id="asb-meta">${s.meta} · ${s.desc}</div></div>
+      <button class="asb-stop" onclick="stopSession()">■ Stop</button>
+    </div>
+    <div class="asb-progress-container"><div class="asb-progress-fill" id="asb-progress"></div></div>
   </div>`;
+  
+  startTimer(limit);
+  
   const cnt = parseInt(localStorage.getItem('za_sessions')||'0');
   localStorage.setItem('za_sessions', cnt+1);
   document.getElementById('sessions-count').textContent = (cnt+1) + ' sessions completed';
   renderSessions();
 }
 
+function startTimer(limit) {
+  clearInterval(timerInterval);
+  timerInterval = setInterval(() => {
+    const audio = document.getElementById('session-audio');
+    const cur = audio.currentTime;
+    const pct = Math.min(100, (cur / limit) * 100);
+    const fill = document.getElementById('asb-progress');
+    if (fill) fill.style.width = pct + '%';
+    
+    if (cur >= limit) {
+      audio.pause();
+      clearInterval(timerInterval);
+      alert("Session completed! 🌿");
+    }
+  }, 1000);
+}
+
 function stopSession() { 
   activeSession = null; 
   document.getElementById('active-banner').style.display = 'none'; 
-  document.getElementById('meditation-player-container').style.display = 'none';
-  document.getElementById('meditation-iframe').src = '';
+  const audio = document.getElementById('session-audio');
+  audio.pause();
+  audio.src = '';
+  clearInterval(timerInterval);
   renderSessions(); 
 }
 
 function renderSessions() {
   document.getElementById('sessions-grid').innerHTML = SESSIONS.map(s => `
     <div class="session-card ${activeSession?.id===s.id?'active':''}" onclick="startSession(${s.id})">
-      <div style="height:120px; background:url('https://img.youtube.com/vi/${s.ytid}/mqdefault.jpg') center/cover; position:relative;">
+      <div style="height:120px; background:url('https://img.youtube.com/vi/${s.thumb}/mqdefault.jpg') center/cover; position:relative;">
         <div style="position:absolute; inset:0; background:linear-gradient(to top, rgba(0,0,0,0.4), transparent);"></div>
       </div>
       <div class="sc-header">

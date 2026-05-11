@@ -242,6 +242,13 @@ function getCookie(name) {
     return null;
 }
 
+function getLang() {
+    const c = getCookie('googtrans');
+    if (c && c.includes('hi')) return 'hi';
+    if (window.location.hash.includes('hi')) return 'hi';
+    return 'en';
+}
+
 injectLanguageSupport();
 
 // Service Worker Registration for PWA
