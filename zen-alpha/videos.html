@@ -105,7 +105,7 @@
             Now Playing
           </h4>
           <div class="np-thumb" id="np-thumb">
-            <iframe id="main-video-frame" style="width:100%; height:100%; border-radius:14px; border:none; display:none;" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+            <div id="player" style="width:100%; height:100%; border-radius:14px; display:none;"></div>
             <div id="video-placeholder" style="width:100%; height:100%; display:flex; align-items:center; justify-content:center; background:var(--cream-3); border-radius:14px;">
               <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="rgba(0,0,0,0.2)" stroke-width="1.5"><rect x="2" y="5" width="15" height="14" rx="3"/><path d="M17 9l5-3v12l-5-3V9z"/></svg>
             </div>
@@ -138,28 +138,42 @@
   </div>
 </div>
 
-<script src="zen-nav.js"></script>
+<script src="https://www.youtube.com/iframe_api"></script>
+<script src="zen-nav.js?v=2"></script>
 <script>
 initNav('videos');
 
 const VIDEOS = [
-  { id:0, title:"Ocean Wave Breathing", duration:"8 min", category:"Breathwork", ytid: "bn9F19Hi1Lk" },
-  { id:1, title:"Evening Wind Down", duration:"12 min", category:"Relaxation", ytid: "1ZYbU82GVz4" },
-  { id:2, title:"Forest Rain Sounds", duration:"30 min", category:"Sleep", ytid: "mXmD6KjM0To" },
-  { id:3, title:"Body Scan Release", duration:"15 min", category:"Focus", ytid: "6YtAt65y5_M" },
-  { id:4, title:"Sunrise Meditation", duration:"10 min", category:"Morning", ytid: "_tSBeRntq-Y" },
-  { id:5, title:"Deep Focus Flow", duration:"25 min", category:"Focus", ytid: "pAnK1y7qjuE" },
+  { id:0, title:"Ocean Wave Breathing", duration:"8 min", category:"Breathwork", ytid: "bn9F19Hi1Lk", ytid_hi: "bn9F19Hi1Lk" },
+  { id:1, title:"Evening Wind Down", duration:"12 min", category:"Relaxation", ytid: "1ZYbU82GVz4", ytid_hi: "k4U-3S5EwS4" },
+  { id:2, title:"Forest Rain Sounds", duration:"30 min", category:"Sleep", ytid: "mXmD6KjM0To", ytid_hi: "7uKj4G1S1eU" },
+  { id:3, title:"Body Scan Release", duration:"15 min", category:"Focus", ytid: "6YtAt65y5_M", ytid_hi: "6YtAt65y5_M" },
+  { id:4, title:"Sunrise Meditation", duration:"10 min", category:"Morning", ytid: "_tSBeRntq-Y", ytid_hi: "_tSBeRntq-Y" },
+  { id:5, title:"Deep Focus Flow", duration:"25 min", category:"Focus", ytid: "L_LUpnjuyP0", ytid_hi: "L_LUpnjuyP0" },
 ];
 
-let activeCategory = 'All', currentVideo = null, playing = false, elapsed = 0, interval = null, searchQ = '';
+let activeCategory = 'All', currentVideo = null, playing = false, elapsed = 0, timerInterval = null, searchQ = '';
+let player = null;
+
+function onYouTubeIframeAPIReady() {
+  // Player will be initialized when a video is selected
+}
+
+function parseDuration(d) {
+  const parts = d.split(' ');
+  return parseInt(parts[0]) * 60;
+}
 
 function renderGrid() {
+  const lang = (typeof getLang === 'function') ? getLang() : 'en';
   let vids = VIDEOS;
   if (activeCategory !== 'All') vids = vids.filter(v => v.category === activeCategory);
   if (searchQ) vids = vids.filter(v => v.title.toLowerCase().includes(searchQ.toLowerCase()));
-  document.getElementById('video-grid').innerHTML = vids.map(v => `
+  document.getElementById('video-grid').innerHTML = vids.map(v => {
+    const id = lang === 'hi' ? v.ytid_hi : v.ytid;
+    return `
     <div class="video-card" onclick="playVideo(${v.id})">
-      <div class="vc-thumb" style="background:url('https://img.youtube.com/vi/${v.ytid}/mqdefault.jpg') center/cover">
+      <div class="vc-thumb" style="background:url('https://img.youtube.com/vi/${id}/mqdefault.jpg') center/cover">
         <div class="vc-play"><svg width="16" height="16" viewBox="0 0 24 24" fill="white"><path d="M8 5.14v14l11-7-11-7z"/></svg></div>
         <div class="vc-dur">${v.duration}</div>
       </div>
@@ -168,7 +182,7 @@ function renderGrid() {
         <div class="vc-meta">${v.duration} · ${v.category}</div>
       </div>
     </div>
-  `).join('');
+  `}).join('');
 }
 
 function setCategory(cat, el) {
@@ -182,19 +196,37 @@ function filterVideos(q) { searchQ = q; renderGrid(); }
 
 function playVideo(id) {
   const v = VIDEOS[id];
+  const lang = (typeof getLang === 'function') ? getLang() : 'en';
+  const ytid = lang === 'hi' ? v.ytid_hi : v.ytid;
+  const limit = parseDuration(v.duration);
+  
   currentVideo = v; elapsed = 0; playing = true;
-  clearInterval(interval);
+  clearInterval(timerInterval);
   
-  const frame = document.getElementById('main-video-frame');
-  const placeholder = document.getElementById('video-placeholder');
-  
-  frame.src = `https://www.youtube.com/embed/${v.ytid}?autoplay=1`;
-  frame.style.display = 'block';
-  placeholder.style.display = 'none';
+  document.getElementById('video-placeholder').style.display = 'none';
+  document.getElementById('player').style.display = 'block';
+
+  if (player && typeof player.loadVideoById === 'function') {
+    player.loadVideoById(ytid);
+  } else {
+    player = new YT.Player('player', {
+      height: '100%', width: '100%', videoId: ytid,
+      playerVars: { 'autoplay': 1, 'controls': 1, 'modestbranding': 1, 'rel': 0 },
+      events: {
+        'onStateChange': (event) => {
+          if (event.data === YT.PlayerState.PLAYING) startTimer(limit);
+          else clearInterval(timerInterval);
+          if (event.data === YT.PlayerState.PLAYING) playing = true;
+          if (event.data === YT.PlayerState.PAUSED) playing = false;
+          updatePlayBtn();
+        }
+      }
+    });
+  }
 
   document.getElementById('np-title').textContent = v.title;
   document.getElementById('np-meta').textContent = v.duration + ' · ' + v.category;
-  document.getElementById('np-thumb').style.background = `url('https://img.youtube.com/vi/${v.ytid}/mqdefault.jpg') center/cover`;
+  document.getElementById('np-thumb').style.background = `url('https://img.youtube.com/vi/${ytid}/mqdefault.jpg') center/cover`;
   document.getElementById('np-total').textContent = v.duration;
   document.getElementById('np-status-dot').style.background = 'var(--sage)';
   updatePlayBtn();
@@ -203,10 +235,34 @@ function playVideo(id) {
   localStorage.setItem('za_sessions', s+1);
 }
 
+function startTimer(limit) {
+  clearInterval(timerInterval);
+  timerInterval = setInterval(() => {
+    if (!player || typeof player.getCurrentTime !== 'function') return;
+    const cur = player.getCurrentTime();
+    elapsed = cur;
+    const pct = Math.min(100, (elapsed / limit) * 100);
+    document.getElementById('progress-fill').style.width = pct + '%';
+    document.getElementById('np-elapsed').textContent = formatTime(elapsed);
+    if (elapsed >= limit) {
+      player.pauseVideo();
+      playing = false;
+      updatePlayBtn();
+      clearInterval(timerInterval);
+      alert("Session complete! 🌿");
+    }
+  }, 1000);
+}
+
+function formatTime(s) {
+  const m = Math.floor(s/60), sec = Math.floor(s%60);
+  return `${m}:${sec < 10 ? '0' : ''}${sec}`;
+}
+
 function togglePlay() {
-  // YouTube embed handles play/pause internally, but we can sync the UI
-  playing = !playing;
-  updatePlayBtn();
+  if (!player) return;
+  if (playing) player.pauseVideo();
+  else player.playVideo();
 }
 
 function updatePlayBtn() {
