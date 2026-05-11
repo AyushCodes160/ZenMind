@@ -166,23 +166,134 @@ document.addEventListener('click', function(e) {
   if (link && window.innerWidth <= 900) closeSidebar();
 });
 
-// Add Google Translate and Language Toggle
-function injectLanguageSupport() {
-  const script = document.createElement('script');
-  script.type = 'text/javascript';
-  script.src = 'https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit';
-  document.head.appendChild(script);
+// ── Language Support (localStorage-based, no external deps) ──
+function getLang() {
+  return localStorage.getItem('za_lang') || 'en';
+}
 
-  const translateDiv = document.createElement('div');
-  translateDiv.id = 'google_translate_element';
-  translateDiv.style.display = 'none';
-  document.body.appendChild(translateDiv);
+function setLang(lang) {
+  localStorage.setItem('za_lang', lang);
+}
 
-  window.googleTranslateElementInit = function() {
-    new google.translate.TranslateElement({pageLanguage: 'en', includedLanguages: 'en,hi', layout: google.translate.TranslateElement.InlineLayout.SIMPLE, autoDisplay: false}, 'google_translate_element');
+// Hindi translations for common UI elements
+const TRANSLATIONS = {
+  // Nav items
+  'Home': 'होम',
+  'Talk to Zen': 'ज़ेन से बात करें',
+  'Community': 'समुदाय',
+  'Daily Quotes': 'दैनिक उद्धरण',
+  'Calm Videos': 'शांत वीडियो',
+  'Meditations': 'ध्यान',
+  'My Journal': 'मेरी डायरी',
+  // Page titles
+  'Welcome back': 'वापसी पर स्वागत है',
+  'Find your calm': 'अपनी शांति खोजें',
+  'Browse': 'ब्राउज़ करें',
+  'Now Playing': 'अभी चल रहा है',
+  'Select a video': 'एक वीडियो चुनें',
+  'Tap any video to start': 'शुरू करने के लिए कोई वीडियो टैप करें',
+  'New Series': 'नई श्रृंखला',
+  'Deep Sleep Journey': 'गहरी नींद यात्रा',
+  // Meditation page
+  'Box Breathing': 'बॉक्स श्वास',
+  'A calming 4-count practice': 'एक शांत 4-गिनती अभ्यास',
+  'Ready to begin': 'शुरू करने के लिए तैयार',
+  'Start Breathing': 'श्वास शुरू करें',
+  'Ambient Music': 'परिवेश संगीत',
+  'Breathe in…': 'साँस लें…',
+  'Breathe out…': 'साँस छोड़ें…',
+  'Hold…': 'रुकें…',
+  // Categories
+  'All': 'सभी',
+  'Breathwork': 'श्वास क्रिया',
+  'Relaxation': 'विश्राम',
+  'Sleep': 'नींद',
+  'Focus': 'ध्यान केंद्रित',
+  'Morning': 'सुबह',
+  // Common
+  'Search videos…': 'वीडियो खोजें…',
+  'Featured': 'विशेष',
+  'FEATURED · TODAY': 'विशेष · आज',
+  'sessions completed': 'सत्र पूर्ण',
+  'Sign in with Google': 'Google से साइन इन करें',
+  'Sync your progress': 'अपनी प्रगति सिंक करें',
+  'Keep it going!': 'जारी रखें!',
+};
+
+function translatePage() {
+  if (getLang() !== 'hi') return;
+
+  // Translate the topbar title
+  const topbarTitle = document.querySelector('.topbar-title');
+  if (topbarTitle && TRANSLATIONS[topbarTitle.textContent.trim()]) {
+    topbarTitle.textContent = TRANSLATIONS[topbarTitle.textContent.trim()];
+  }
+
+  // Translate nav links
+  document.querySelectorAll('.nav-link').forEach(link => {
+    const text = link.childNodes;
+    text.forEach(node => {
+      if (node.nodeType === 3) { // text node
+        const trimmed = node.textContent.trim();
+        if (TRANSLATIONS[trimmed]) {
+          node.textContent = node.textContent.replace(trimmed, TRANSLATIONS[trimmed]);
+        }
+      }
+    });
+  });
+
+  // Translate section labels
+  document.querySelectorAll('.section-label').forEach(el => {
+    const t = el.textContent.trim();
+    if (TRANSLATIONS[t]) el.textContent = TRANSLATIONS[t];
+  });
+
+  // Translate tags / category buttons
+  document.querySelectorAll('.tag, .sc-tag').forEach(el => {
+    const t = el.textContent.trim();
+    if (TRANSLATIONS[t]) el.textContent = TRANSLATIONS[t];
+  });
+
+  // Translate elements with specific IDs
+  const idMap = {
+    'np-title': true, 'np-meta': true, 'fv-title': true, 'fv-cat': true,
+    'bw-title': true, 'bw-subtitle': true, 'bw-status': true, 'bw-start-text': true,
   };
+  Object.keys(idMap).forEach(id => {
+    const el = document.getElementById(id);
+    if (el && TRANSLATIONS[el.textContent.trim()]) {
+      el.textContent = TRANSLATIONS[el.textContent.trim()];
+    }
+  });
 
-  // Add toggle to the UI (e.g., topbar if it exists)
+  // Translate sidebar bottom text
+  document.querySelectorAll('.sidebar-logo-tagline').forEach(el => {
+    const t = el.textContent.trim();
+    if (TRANSLATIONS[t]) el.textContent = TRANSLATIONS[t];
+  });
+  document.querySelectorAll('#user-name-text').forEach(el => {
+    const t = el.textContent.trim();
+    if (TRANSLATIONS[t]) el.textContent = TRANSLATIONS[t];
+  });
+  document.querySelectorAll('#user-plan-text').forEach(el => {
+    const t = el.textContent.trim();
+    if (TRANSLATIONS[t]) el.textContent = TRANSLATIONS[t];
+  });
+
+  // Translate placeholders
+  document.querySelectorAll('input[placeholder]').forEach(el => {
+    const p = el.placeholder.trim();
+    if (TRANSLATIONS[p]) el.placeholder = TRANSLATIONS[p];
+  });
+
+  // Translate sessions-count
+  const sc = document.getElementById('sessions-count');
+  if (sc) {
+    sc.textContent = sc.textContent.replace('sessions completed', 'सत्र पूर्ण');
+  }
+}
+
+function injectLanguageSupport() {
   setTimeout(() => {
     const topbarRight = document.querySelector('.topbar-right');
     if (topbarRight) {
@@ -194,59 +305,19 @@ function injectLanguageSupport() {
         </select>
       `;
       topbarRight.prepend(langToggle);
-      
+
       const select = document.getElementById('lang-select');
-      
-      // try to sync with current google translate state
-      const currentLang = getCookie('googtrans');
-      if (currentLang && currentLang.includes('hi')) {
-        select.value = 'hi';
-      }
+      select.value = getLang();
 
       select.addEventListener('change', (e) => {
-        const val = e.target.value;
-        const gtSelect = document.querySelector('.goog-te-combo');
-        if (gtSelect) {
-            gtSelect.value = val;
-            gtSelect.dispatchEvent(new Event('change'));
-        } else {
-            // Fallback: Set cookie and use the hash method which is more reliable for local development
-            setCookie('googtrans', `/en/${val}`, 30);
-            window.location.hash = `#googtrans(en|${val})`;
-            window.location.reload();
-        }
+        setLang(e.target.value);
+        window.location.reload();
       });
     }
-  }, 500);
-}
 
-function setCookie(name, value, days, domain) {
-    let expires = "";
-    if (days) {
-        let date = new Date();
-        date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
-        expires = "; expires=" + date.toUTCString();
-    }
-    let domainStr = domain ? ("; domain=" + domain) : "";
-    document.cookie = name + "=" + (value || "")  + expires + "; path=/" + domainStr;
-}
-
-function getCookie(name) {
-    let nameEQ = name + "=";
-    let ca = document.cookie.split(';');
-    for(let i=0; i < ca.length; i++) {
-        let c = ca[i];
-        while (c.charAt(0)==' ') c = c.substring(1,c.length);
-        if (c.indexOf(nameEQ) == 0) return c.substring(nameEQ.length,c.length);
-    }
-    return null;
-}
-
-function getLang() {
-    const c = getCookie('googtrans');
-    if (c && c.includes('hi')) return 'hi';
-    if (window.location.hash.includes('hi')) return 'hi';
-    return 'en';
+    // Run translation after page has rendered
+    translatePage();
+  }, 200);
 }
 
 injectLanguageSupport();
