@@ -166,23 +166,16 @@ document.addEventListener('click', function(e) {
   if (link && window.innerWidth <= 900) closeSidebar();
 });
 
-// Add Google Translate and Language Toggle
+// ── Language Support (localStorage-based, no external deps) ──
+function getLang() {
+  return localStorage.getItem('za_lang') || 'en';
+}
+
+function setLang(lang) {
+  localStorage.setItem('za_lang', lang);
+}
+
 function injectLanguageSupport() {
-  const script = document.createElement('script');
-  script.type = 'text/javascript';
-  script.src = 'https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit';
-  document.head.appendChild(script);
-
-  const translateDiv = document.createElement('div');
-  translateDiv.id = 'google_translate_element';
-  translateDiv.style.display = 'none';
-  document.body.appendChild(translateDiv);
-
-  window.googleTranslateElementInit = function() {
-    new google.translate.TranslateElement({pageLanguage: 'en', includedLanguages: 'en,hi', layout: google.translate.TranslateElement.InlineLayout.SIMPLE, autoDisplay: false}, 'google_translate_element');
-  };
-
-  // Add toggle to the UI (e.g., topbar if it exists)
   setTimeout(() => {
     const topbarRight = document.querySelector('.topbar-right');
     if (topbarRight) {
@@ -194,59 +187,16 @@ function injectLanguageSupport() {
         </select>
       `;
       topbarRight.prepend(langToggle);
-      
+
       const select = document.getElementById('lang-select');
-      
-      // try to sync with current google translate state
-      const currentLang = getCookie('googtrans');
-      if (currentLang && currentLang.includes('hi')) {
-        select.value = 'hi';
-      }
+      select.value = getLang();
 
       select.addEventListener('change', (e) => {
-        const val = e.target.value;
-        const gtSelect = document.querySelector('.goog-te-combo');
-        if (gtSelect) {
-            gtSelect.value = val;
-            gtSelect.dispatchEvent(new Event('change'));
-        } else {
-            // Fallback: Set cookie and use the hash method which is more reliable for local development
-            setCookie('googtrans', `/en/${val}`, 30);
-            window.location.hash = `#googtrans(en|${val})`;
-            window.location.reload();
-        }
+        setLang(e.target.value);
+        window.location.reload();
       });
     }
-  }, 500);
-}
-
-function setCookie(name, value, days, domain) {
-    let expires = "";
-    if (days) {
-        let date = new Date();
-        date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
-        expires = "; expires=" + date.toUTCString();
-    }
-    let domainStr = domain ? ("; domain=" + domain) : "";
-    document.cookie = name + "=" + (value || "")  + expires + "; path=/" + domainStr;
-}
-
-function getCookie(name) {
-    let nameEQ = name + "=";
-    let ca = document.cookie.split(';');
-    for(let i=0; i < ca.length; i++) {
-        let c = ca[i];
-        while (c.charAt(0)==' ') c = c.substring(1,c.length);
-        if (c.indexOf(nameEQ) == 0) return c.substring(nameEQ.length,c.length);
-    }
-    return null;
-}
-
-function getLang() {
-    const c = getCookie('googtrans');
-    if (c && c.includes('hi')) return 'hi';
-    if (window.location.hash.includes('hi')) return 'hi';
-    return 'en';
+  }, 100);
 }
 
 injectLanguageSupport();
