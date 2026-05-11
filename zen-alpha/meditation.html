@@ -76,6 +76,9 @@
   </div>
   <div class="page-content">
     <div id="active-banner" style="display:none"></div>
+    <div id="meditation-player-container" style="display:none; margin-bottom:20px; border-radius:18px; overflow:hidden; aspect-ratio:16/9; max-height:240px; background:black;">
+      <iframe id="meditation-iframe" style="width:100%; height:100%; border:none;" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+    </div>
     <div class="med-layout">
       <!-- Breathing widget -->
       <div class="breathe-widget">
@@ -99,6 +102,7 @@
           <div class="pattern-chip" onclick="setPattern('calm',this)">2-4 Calm</div>
         </div>
         <div class="bw-sessions-done" id="bw-done-count"></div>
+        <audio id="breathing-audio" loop src="https://assets.mixkit.co/music/preview/mixkit-zen-yoga-631.mp3"></audio>
       </div>
 
       <!-- Sessions -->
@@ -117,12 +121,12 @@
 initNav('meditation');
 
 const SESSIONS = [
-  { id:0, title:"Morning Clarity", meta:"7 min · Beginner", tags:["Breath","Focus"], iconBg:"var(--sage-light)", iconColor:"var(--sage)", desc:"Start your day with intention" },
-  { id:1, title:"Anxiety Relief", meta:"10 min · All levels", tags:["Calm","Grounding"], iconBg:"var(--rose-light)", iconColor:"var(--rose)", desc:"Ground yourself in the present" },
-  { id:2, title:"Deep Sleep Prep", meta:"15 min · Beginner", tags:["Sleep","Relax"], iconBg:"oklch(90% 0.04 220)", iconColor:"oklch(50% 0.09 220)", desc:"Wind down for restful sleep" },
-  { id:3, title:"Self-Compassion", meta:"12 min · All levels", tags:["Healing","Love"], iconBg:"var(--terra-light)", iconColor:"var(--terra)", desc:"Be gentle with yourself" },
-  { id:4, title:"Body Scan", meta:"20 min · Intermediate", tags:["Awareness","Relax"], iconBg:"oklch(90% 0.04 280)", iconColor:"oklch(50% 0.08 280)", desc:"Release tension from head to toe" },
-  { id:5, title:"Loving Kindness", meta:"10 min · Beginner", tags:["Compassion","Heart"], iconBg:"var(--rose-light)", iconColor:"var(--rose)", desc:"Cultivate warmth and love" },
+  { id:0, title:"Morning Clarity", meta:"7 min · Beginner", tags:["Breath","Focus"], iconBg:"var(--sage-light)", iconColor:"var(--sage)", desc:"Start your day with intention", ytid: "ENZZmRE-62Q" },
+  { id:1, title:"Anxiety Relief", meta:"10 min · All levels", tags:["Calm","Grounding"], iconBg:"var(--rose-light)", iconColor:"var(--rose)", desc:"Ground yourself in the present", ytid: "O-6f5wQXSu8" },
+  { id:2, title:"Deep Sleep Prep", meta:"15 min · Beginner", tags:["Sleep","Relax"], iconBg:"oklch(90% 0.04 220)", iconColor:"oklch(50% 0.09 220)", desc:"Wind down for restful sleep", ytid: "2O7K-8G2nwU" },
+  { id:3, title:"Self-Compassion", meta:"12 min · All levels", tags:["Healing","Love"], iconBg:"var(--terra-light)", iconColor:"var(--terra)", desc:"Be gentle with yourself", ytid: "Y8uM8mD5L10" },
+  { id:4, title:"Body Scan", meta:"20 min · Intermediate", tags:["Awareness","Relax"], iconBg:"oklch(90% 0.04 280)", iconColor:"oklch(50% 0.08 280)", desc:"Release tension from head to toe", ytid: "qs_PBe79oJA" },
+  { id:5, title:"Loving Kindness", meta:"10 min · Beginner", tags:["Compassion","Heart"], iconBg:"var(--rose-light)", iconColor:"var(--rose)", desc:"Cultivate warmth and love", ytid: "itZMM5gC6bw" },
 ];
 
 const PATTERNS = {
@@ -157,8 +161,10 @@ function renderProgressDots() {
 }
 
 function toggleBreath() {
+  const audio = document.getElementById('breathing-audio');
   if (breathing) {
     breathing = false;
+    audio.pause();
     clearTimeout(breathInterval); clearInterval(countInterval);
     document.getElementById('bw-btn').textContent = '▶ Start Breathing';
     document.getElementById('bw-phase').textContent = 'Paused';
@@ -166,6 +172,7 @@ function toggleBreath() {
     stopRingAnim();
   } else {
     breathing = true;
+    audio.play();
     phaseIndex = 0;
     document.getElementById('bw-btn').textContent = '⏸ Pause';
     nextPhase();
@@ -220,6 +227,13 @@ function stopRingAnim() {
 function startSession(id) {
   const s = SESSIONS[id];
   activeSession = s;
+  
+  const playerContainer = document.getElementById('meditation-player-container');
+  const iframe = document.getElementById('meditation-iframe');
+  
+  playerContainer.style.display = 'block';
+  iframe.src = `https://www.youtube.com/embed/${s.ytid}?autoplay=1`;
+
   const banner = document.getElementById('active-banner');
   banner.style.display = '';
   banner.innerHTML = `<div class="active-session-banner">
@@ -233,15 +247,21 @@ function startSession(id) {
   renderSessions();
 }
 
-function stopSession() { activeSession = null; document.getElementById('active-banner').style.display = 'none'; renderSessions(); }
+function stopSession() { 
+  activeSession = null; 
+  document.getElementById('active-banner').style.display = 'none'; 
+  document.getElementById('meditation-player-container').style.display = 'none';
+  document.getElementById('meditation-iframe').src = '';
+  renderSessions(); 
+}
 
 function renderSessions() {
   document.getElementById('sessions-grid').innerHTML = SESSIONS.map(s => `
     <div class="session-card ${activeSession?.id===s.id?'active':''}" onclick="startSession(${s.id})">
+      <div style="height:120px; background:url('https://img.youtube.com/vi/${s.ytid}/mqdefault.jpg') center/cover; position:relative;">
+        <div style="position:absolute; inset:0; background:linear-gradient(to top, rgba(0,0,0,0.4), transparent);"></div>
+      </div>
       <div class="sc-header">
-        <div class="sc-icon" style="background:${s.iconBg}">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="${s.iconColor}" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4"/><circle cx="12" cy="12" r="1.5" fill="${s.iconColor}" stroke="none"/></svg>
-        </div>
         <div class="sc-title">${s.title}</div>
         <div class="sc-meta">${s.meta}</div>
         <div class="sc-tags">${s.tags.map(t=>`<div class="sc-tag">${t}</div>`).join('')}</div>
